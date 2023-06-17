@@ -65,6 +65,15 @@ def new_post():
         return redirect(url_for('home'))
     return render_template('submit.html', title='New Post', form=form, legend='New Post')
 
+@app.route("/user/<string:username>")
+@login_required
+def profile(username):
+    user = User.query.filter_by(username=username).first_or_404()
+    posts = Post.query.filter_by(author=user)\
+        .order_by(Post.date_posted.desc())\
+        .all()
+    return render_template('profile.html', posts=posts, user=user)
+
 @app.before_request
 def log_request_info():
     print(request.headers)

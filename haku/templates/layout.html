@@ -27,7 +27,7 @@
             <ul class="navbar-nav">
                 {% if current_user.is_authenticated %}
                     <li class="nav-item">
-                        <a class="nav-link" href="">Hi, {{ current_user.username }}</a>
+                        <a class="nav-link" href="{{ url_for('profile', username=current_user.username) }}">Hi, {{ current_user.username }}</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
@@ -55,23 +55,9 @@
         </div>
         <div class="col-lg-2">
             <!-- Sidebar goes here -->
-            <div class="card my-2">
-                <h5 class="card-header">Welcome to Haku!</h5> <!-- Added a welcome message -->
-                <div class="card-body">
-                    Welcome to the front page of Haku! You can create a post, view other posts, and much more. Please enjoy your stay.
-                    <hr/>
-                    {% if current_page %}
-                        <p>Current page: {{ current_page }}</p>
-                    {% endif %}
-                    {% if current_user.is_authenticated %}
-                        <a href="{{ url_for('new_post') }}" class="btn btn-primary btn-block">Create Post</a>
-                    {% else %}
-                        <p>Please log in to create a post.</p>
-                    {% endif %}
-                    <!-- Other things to add later -->
-                </div>
-            </div>
             {% block sidebar_content %}{% endblock %}
+            {% block sidebar_content2 %}{% endblock %}
+            {% block sidebar_content3 %}{% endblock %}
         </div>
     </div>
 </div>

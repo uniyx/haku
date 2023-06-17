@@ -1,6 +1,6 @@
-<!-- haku/templates/home.html -->
+<!-- haku/templates/profile.html -->
 
-{% extends "layout.html" %}
+{% extends "compact_layout.html" %}
 {% block content %}
   <div class="container-fluid mt-2 pr-0">
     <div class="list-group">
@@ -23,22 +23,16 @@
   </div>
 {% endblock %}
 
-
 {% block sidebar_content %}
-<div class="card my-2">
-  <h5 class="card-header">Welcome to Haku!</h5> <!-- Added a welcome message -->
-  <div class="card-body">
-      Welcome to the front page of Haku! You can create a post, view other posts, and much more. Please enjoy your stay.
-      <hr/>
-      {% if current_page %}
-          <p>Current page: {{ current_page }}</p>
-      {% endif %}
-      {% if current_user.is_authenticated %}
-          <a href="{{ url_for('new_post') }}" class="btn btn-primary btn-block">Create Post</a>
-      {% else %}
-          <p>Please log in to create a post.</p>
-      {% endif %}
-      <!-- Other things to add later -->
-  </div>
+<div class="card mt-2">
+    <div class="card-body">
+        <h5 class="card-title">{{ user.username }}</h5>
+        <p class="card-text">
+            Joined on {{ user.date_joined.strftime('%Y-%m-%d') }}
+        </p>
+        <p class="card-text">
+            {{ user.posts|length }} posts
+        </p>
+    </div>
 </div>
 {% endblock sidebar_content %}
