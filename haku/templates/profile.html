@@ -2,25 +2,28 @@
 
 {% extends "compact_layout.html" %}
 {% block content %}
-  <div class="container-fluid mt-2 pr-0">
+<div class="container-fluid mt-2 pr-0">
     <div class="list-group">
-      {% for post in posts %}
+        {% for post in posts %}
         <div id="post-{{ post.id }}" class="list-group-item list-group-item-action" style="cursor: pointer;">
-          <div class="d-flex w-100 justify-content-between">
-            <h5 class="mb-1">{{ post.title }}</h5>
-            <small>{{ post.date_posted.strftime('%Y-%m-%d') }}</small>
-          </div>
-          <p class="mb-1">{{ post.content | truncate(100) }}</p>
-          <small>Posted by <a href="{{ url_for('profile', username=post.author.username) }}" onclick="event.stopPropagation();">{{ post.author.username }}</a></small>
+            <div class="d-flex w-100 justify-content-between">
+                <h5 class="mb-1">{{ post.title }}</h5>
+                <small>{{ post.date_posted.strftime('%Y-%m-%d') }}</small>
+            </div>
+            <p class="mb-1">{{ post.content | truncate(100) }}</p>
+            <small>c/<a href="{{ url_for('community', community_name=post.community.name) }}"
+                    onclick="event.stopPropagation();">{{ post.community.name }}</a></small>
+            <small>Posted by <a href="{{ url_for('profile', username=post.author.username) }}"
+                    onclick="event.stopPropagation();">{{ post.author.username }}</a></small>
         </div>
         <script>
-          document.getElementById("post-{{ post.id }}").onclick = function() {
-              window.location.href = "{{ url_for('post', post_id=post.id) }}";
-          };
+            document.getElementById("post-{{ post.id }}").onclick = function () {
+                window.location.href = "{{ url_for('post', community_name=post.community.name, post_id=post.id) }}";
+            };
         </script>
-      {% endfor %}
+        {% endfor %}
     </div>
-  </div>
+</div>
 {% endblock %}
 
 {% block sidebar_content %}

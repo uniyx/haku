@@ -2,9 +2,10 @@
 
 from flask import render_template, url_for, flash, redirect, request
 from haku import app, db, bcrypt
-from haku.forms import RegistrationForm, LoginForm, PostForm
+from haku.forms import RegistrationForm, LoginForm, PostForm, CommunityForm
 from haku.models.user import User
 from haku.models.post import Post
+from haku.models.community import Community
 from flask_login import login_user, current_user, logout_user, login_required
 
 
@@ -48,17 +49,21 @@ def logout():
     logout_user()
     return redirect(url_for('home'))
 
-@app.route("/post/<int:post_id>")
-def post(post_id):
+@app.route("/c/<community_name>/<int:post_id>")
+@login_required
+def post(community_name, post_id):
+    community = Community.query.filter_by(name=community_name).first_or_404()
     post = Post.query.get_or_404(post_id)
-    return render_template('post.html', title=post.title, post=post)
+    if post.community_id != community.id:
+        abort(404)
+    return render_template('post.html', title=post.title, post=post, community=community)
 
 @app.route("/submit", methods=['GET', 'POST'])
 @login_required
 def new_post():
     form = PostForm()
     if form.validate_on_submit():
-        post = Post(title=form.title.data, content=form.content.data, author=current_user)
+        post = Post(title=form.title.data, content=form.content.data, author=current_user, community=form.community.data)
         db.session.add(post)
         db.session.commit()
         flash('Your post has been created!', 'success')
@@ -74,8 +79,20 @@ def profile(username):
         .all()
     return render_template('profile.html', posts=posts, user=user)
 
-@app.before_request
-def log_request_info():
-    print(request.headers)
-    app.logger.debug('Headers: %s', request.headers)
-    app.logger.debug('Body: %s', request.get_data())
+@app.route("/create_community", methods=['GET', 'POST'])
+@login_required
+def create_community():
+    form = CommunityForm()
+    if form.validate_on_submit():
+        community = Community(name=form.name.data, description=form.description.data)
+        db.session.add(community)
+        db.session.commit()
+        flash('Your community has been created!', 'success')
+        return redirect(url_for('community', community_name=community.name))
+    return render_template('create_community.html', title='Create Community', form=form)
+
+@app.route("/c/<community_name>")
+def community(community_name):
+    community = Community.query.filter_by(name=community_name).first_or_404()
+    posts = Post.query.filter_by(community_id=community.id).order_by(Post.date_posted.desc()).all()
+    return render_template('community.html', community=community, posts=posts)

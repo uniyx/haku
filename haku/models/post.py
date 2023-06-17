@@ -1,7 +1,7 @@
 # haku/models/post.py
 
-from datetime import datetime
 from haku import db
+from datetime import datetime
 
 class Post(db.Model):
     __tablename__ = 'posts'
@@ -11,3 +11,4 @@ class Post(db.Model):
     content = db.Column(db.Text, nullable=False)
     date_posted = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    community_id = db.Column(db.Integer, db.ForeignKey('communities.id'), nullable=True)

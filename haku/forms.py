@@ -3,7 +3,9 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, TextAreaField, PasswordField, BooleanField, SubmitField
 from wtforms.validators import DataRequired, Email, EqualTo, ValidationError, Length
+from wtforms_sqlalchemy.fields import QuerySelectField
 from haku.models.user import User
+from haku.models.community import Community
 
 class RegistrationForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired()])
@@ -28,7 +30,16 @@ class LoginForm(FlaskForm):
     remember = BooleanField('Remember Me')
     submit = SubmitField('Login')
 
+def community_choices():
+    return Community.query
+
 class PostForm(FlaskForm):
+    community = QuerySelectField('Community', query_factory=community_choices, get_label='name', allow_blank=False, validators=[DataRequired()])
     title = StringField('Title', validators=[DataRequired()])
     content = TextAreaField('Content', validators=[DataRequired()])
     submit = SubmitField('Post')
+
+class CommunityForm(FlaskForm):
+    name = StringField('Name', validators=[DataRequired(), Length(max=100)])
+    description = TextAreaField('Description', validators=[DataRequired()])
+    submit = SubmitField('Create Community')

@@ -1,0 +1,22 @@
+<!-- haku/templates/create_community.html -->
+
+{% extends "compact_layout.html" %}
+{% block content %}
+<div class="card my-4">
+    <div class="card-body">
+        <h1 class="card-title">Create a Community</h1>
+        <form method="POST">
+            {{ form.hidden_tag() }}
+            <div class="form-group">
+                {{ form.name.label(class="form-control-label") }}
+                {{ form.name(class="form-control") }}
+            </div>
+            <div class="form-group">
+                {{ form.description.label(class="form-control-label") }}
+                {{ form.description(class="form-control") }}
+            </div>
+            {{ form.submit(class="btn btn-primary") }}
+        </form>
+    </div>
+</div>
+{% endblock %}
