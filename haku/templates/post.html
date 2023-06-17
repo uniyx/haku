@@ -1,0 +1,14 @@
+<!-- haku/templates/post.html -->
+
+{% extends "compact_layout.html" %}
+{% block content %}
+<div class="container mt-2 pr-0">
+    <div class="card">
+        <div class="card-body">
+            <h2 class="card-title">{{ post.title }}</h2>
+            <h5 class="card-subtitle mb-2 text-muted">Posted by {{ post.author.username }} on {{ post.date_posted.strftime('%Y-%m-%d') }}</h5>
+            <p class="card-text">{{ post.content }}</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

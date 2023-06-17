@@ -1,0 +1,92 @@
+<!-- haku/templates/compact_layout.html -->
+
+<!doctype html>
+<html lang="en">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
+
+    <title>Haku</title>
+</head>
+<body>
+<!-- Navigation Bar -->
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="{{ url_for('home') }}">Haku</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav mr-auto">
+                <!-- other links can be added here -->
+            </ul>
+            <ul class="navbar-nav">
+                {% if current_user.is_authenticated %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="">Hi, {{ current_user.username }}</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
+                    </li>
+                {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('register') }}">Register</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('login') }}">Login</a>
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- Content -->
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-lg-5 p-0">
+            <!-- Main content goes here -->
+            {% block content %}
+            {% endblock %}
+        </div>
+        <div class="col-lg-2">
+            <!-- Sidebar goes here -->
+            <div class="card my-2">
+                <h5 class="card-header">Welcome to Haku!</h5> <!-- Added a welcome message -->
+                <div class="card-body">
+                    Welcome to the front page of Haku! You can create a post, view other posts, and much more. Please enjoy your stay.
+                    <hr/>
+                    {% if current_page %}
+                        <p>Current page: {{ current_page }}</p>
+                    {% endif %}
+                    {% if current_user.is_authenticated %}
+                        <a href="{{ url_for('new_post') }}" class="btn btn-primary btn-block">Create Post</a>
+                    {% else %}
+                        <p>Please log in to create a post.</p>
+                    {% endif %}
+                    <!-- Other things to add later -->
+                </div>
+            </div>
+            {% block sidebar_content %}{% endblock %}
+        </div>
+    </div>
+</div>
+
+<!-- Footer -->
+<footer class="footer mt-2 py-3 bg-light">
+    <div class="container">
+        <span class="text-muted">© 2023 Haku. All rights reserved.</span>
+    </div>
+</footer>
+
+<!-- Optional JavaScript -->
+<!-- jQuery first, then Popper.js, then Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+</body>
+</html>
