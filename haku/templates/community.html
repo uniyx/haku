@@ -1,31 +1,38 @@
 <!-- haku/templates/community.html -->
 
 {% extends "layout.html" %}
-{% block content %}
-<div class="container-fluid mt-2 pr-0">
-    <h2>c/{{ community.name }}</h2>
-    <p>{{ community.name }}</p>
-</div>
-    <div class="container-fluid mt-2 pr-0">
-        <div class="list-group">
-            {% for post in posts %}
-            <div id="post-{{ post.id }}" class="list-group-item list-group-item-action" style="cursor: pointer;">
-                <div class="d-flex w-100 justify-content-between">
-                    <h5 class="mb-1">{{ post.title }}</h5>
-                    <small>{{ post.date_posted.strftime('%Y-%m-%d') }}</small>
-                </div>
-                <p class="mb-1">{{ post.content | truncate(100) }}</p>
-                <small>Posted by <a href="{{ url_for('profile', username=post.author.username) }}"
-                        onclick="event.stopPropagation();">{{ post.author.username }}</a></small>
-            </div>
-            <script>
-                document.getElementById("post-{{ post.id }}").onclick = function () {
-                    window.location.href = "{{ url_for('post', community_name=post.community.name, post_id=post.id) }}";
-                };
-            </script>
-            {% endfor %}
-        </div>
+
+{% block header %}
+<div class="jumbotron jumbotron-fluid py-3 mb-2">
+    <div class="container">
+      <h1 class="display-4 text-center">c/{{ community.name }}</h1>
+      <p class="lead text-center">{{ community.name }}</p>
     </div>
+  </div>  
+{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid mt-2 pr-0 mb-0">
+    <div class="list-group">
+        {% for post in posts %}
+        <div id="post-{{ post.id }}" class="list-group-item list-group-item-action" style="cursor: pointer;">
+            <div class="d-flex w-100 justify-content-between">
+                <h5 class="mb-1">{{ post.title }}</h5>
+                <small>{{ post.date_posted.strftime('%Y-%m-%d') }}</small>
+            </div>
+            <p class="mb-1">{{ post.content | truncate(100) }}</p>
+            <small>Posted by <a href="{{ url_for('profile', username=post.author.username) }}"
+                    onclick="event.stopPropagation();">{{ post.author.username }}</a></small>
+        </div>
+        <script>
+            document.getElementById("post-{{ post.id }}").onclick = function () {
+                window.location.href = "{{ url_for('post', community_name=post.community.name, post_id=post.id) }}";
+            };
+        </script>
+        {% endfor %}
+    </div>
+</div>
 {% endblock %}
 
 {% block sidebar_content %}
