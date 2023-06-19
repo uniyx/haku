@@ -22,13 +22,13 @@
                 <button class="btn btn-outline-secondary btn-sm" data-bs-toggle="collapse"
                     data-bs-target="#post-content-{{ post.id }}" aria-expanded="false"
                     aria-controls="post-content-{{ post.id }}" onclick="event.stopPropagation();">
-                    Expand
+                    <i class="fas fa-up-right-and-down-left-from-center"></i>
                 </button>
                 {% if post.author == current_user %}
                 <a href="{{ url_for('edit_post', community_name=post.community.name, post_id=post.id) }}"
-                    class="btn btn-outline-secondary btn-sm">Edit</a>
+                    class="btn btn-outline-secondary btn-sm"><i class="fas fa-pencil-alt"></i></a>
                 {% endif %}
-                <button class="btn btn-outline-secondary btn-sm">Save</button>
+                <button class="btn btn-outline-secondary btn-sm"><i class="fas fa-bookmark"></i></button>
             </div>
             <div id="post-content-{{ post.id }}" class="collapse">
                 <hr>

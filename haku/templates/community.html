@@ -12,18 +12,38 @@
 {% endblock %}
 
 {% block content %}
-
-<div class="container-fluid mt-2 pr-0 mb-0">
+<div class="container-fluid mt-2 pr-0">
     <div class="list-group">
         {% for post in posts %}
         <div id="post-{{ post.id }}" class="list-group-item list-group-item-action" style="cursor: pointer;">
             <div class="d-flex w-100 justify-content-between">
                 <h5 class="mb-1">{{ post.title }}</h5>
-                <small>{{ post.date_posted.strftime('%Y-%m-%d') }}</small>
+                <small>
+                    <span
+                        title="{% if post.date_edited %}Edited on {{ post.date_edited.strftime('%Y-%m-%d') }}{% endif %}">{{
+                        post.date_posted.strftime('%Y-%m-%d') }}{% if post.date_edited %}*{% endif %}</span>
+                </small>
             </div>
-            <p class="mb-1">{{ post.content | truncate(100) }}</p>
+            <small>c/<a href="{{ url_for('community', community_name=post.community.name) }}"
+                    onclick="event.stopPropagation();">{{ post.community.name }}</a></small>
             <small>Posted by <a href="{{ url_for('profile', username=post.author.username) }}"
                     onclick="event.stopPropagation();">{{ post.author.username }}</a></small>
+            <div class="card-footer pl-0 pb-0">
+                <button class="btn btn-outline-secondary btn-sm" data-bs-toggle="collapse"
+                    data-bs-target="#post-content-{{ post.id }}" aria-expanded="false"
+                    aria-controls="post-content-{{ post.id }}" onclick="event.stopPropagation();">
+                    <i class="fas fa-up-right-and-down-left-from-center"></i>
+                </button>
+                {% if post.author == current_user %}
+                <a href="{{ url_for('edit_post', community_name=post.community.name, post_id=post.id) }}"
+                    class="btn btn-outline-secondary btn-sm"><i class="fas fa-pencil-alt"></i></a>
+                {% endif %}
+                <button class="btn btn-outline-secondary btn-sm"><i class="fas fa-bookmark"></i></button>
+            </div>
+            <div id="post-content-{{ post.id }}" class="collapse">
+                <hr>
+                {{ post.content }}
+            </div>
         </div>
         <script>
             document.getElementById("post-{{ post.id }}").onclick = function () {
