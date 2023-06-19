@@ -1,6 +1,7 @@
 # haku/routes.py
 
-from flask import render_template, url_for, flash, redirect, request
+from datetime import datetime
+from flask import abort, render_template, url_for, flash, redirect, request
 from haku import app, db, bcrypt
 from haku.forms import RegistrationForm, LoginForm, PostForm, CommunityForm
 from haku.models.user import User
@@ -96,3 +97,22 @@ def community(community_name):
     community = Community.query.filter_by(name=community_name).first_or_404()
     posts = Post.query.filter_by(community_id=community.id).order_by(Post.date_posted.desc()).all()
     return render_template('community.html', community=community, posts=posts)
+
+@app.route("/c/<string:community_name>/<int:post_id>/edit", methods=['GET', 'POST'])
+@login_required
+def edit_post(community_name, post_id):
+    post = Post.query.get_or_404(post_id)
+    if post.author != current_user:
+        abort(403)
+    form = PostForm()
+    if form.validate_on_submit():
+        post.title = form.title.data
+        post.content = form.content.data
+        post.date_edited = datetime.utcnow()
+        db.session.commit()
+        flash('Your post has been updated!', 'success')
+        return redirect(url_for('post', community_name=community_name, post_id=post.id))
+    elif request.method == 'GET':
+        form.title.data = post.title
+        form.content.data = post.content
+    return render_template('submit.html', title='Update Post', form=form, legend='Update Post')
