@@ -1,14 +1,16 @@
 # haku/routes.py
 
 from datetime import datetime
-from flask import abort, render_template, url_for, flash, redirect, request
+from flask import abort, jsonify, render_template, url_for, flash, redirect, request
+from psycopg2 import IntegrityError
 from haku import app, db, bcrypt
 from haku.forms import RegistrationForm, LoginForm, PostForm, CommunityForm
 from haku.models.user import User
 from haku.models.post import Post
 from haku.models.community import Community
+from haku.models.vote import Vote
 from flask_login import login_user, current_user, logout_user, login_required
-
+from sqlalchemy import func
 
 @app.route("/")
 def home():
@@ -116,3 +118,38 @@ def edit_post(community_name, post_id):
         form.title.data = post.title
         form.content.data = post.content
     return render_template('submit.html', title='Update Post', form=form, legend='Update Post')
+
+@app.context_processor
+def utility_processor():
+    def get_post_vote_total(post_id):
+        total = db.session.query(func.sum(Vote.value)).filter(Vote.post_id == post_id).scalar()
+        return total if total else 0
+    return dict(get_post_vote_total=get_post_vote_total)
+
+@app.route('/vote', methods=['POST'])
+@login_required
+def vote():
+    data = request.get_json()
+    post_id = data['post_id']
+    value = data['value']
+
+    print(post_id, value)
+
+    vote = Vote.query.filter_by(user_id=current_user.id, post_id=post_id).first()
+    if vote:
+        if vote.value == value:
+            db.session.delete(vote)
+        else:
+            vote.value = value
+    else:
+        vote = Vote(value=value, user_id=current_user.id, post_id=post_id)
+        db.session.add(vote)
+    
+    try:
+        db.session.commit()
+    except IntegrityError:
+        db.session.rollback()
+        return jsonify({'message': 'You have already voted.'}), 400
+
+    new_score = db.session.query(func.sum(Vote.value)).filter(Vote.post_id == post_id).scalar() or 0
+    return jsonify({'new_score': new_score}), 200

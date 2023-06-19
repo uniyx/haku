@@ -6,33 +6,52 @@
     <div class="list-group">
         {% for post in posts %}
         <div id="post-{{ post.id }}" class="list-group-item list-group-item-action" style="cursor: pointer;">
-            <div class="d-flex w-100 justify-content-between">
-                <h5 class="mb-1">{{ post.title }}</h5>
-                <small>
-                    <span
-                        title="{% if post.date_edited %}Edited on {{ post.date_edited.strftime('%Y-%m-%d') }}{% endif %}">{{
-                        post.date_posted.strftime('%Y-%m-%d') }}{% if post.date_edited %}*{% endif %}</span>
-                </small>
-            </div>
-            <small>c/<a href="{{ url_for('community', community_name=post.community.name) }}"
-                    onclick="event.stopPropagation();">{{ post.community.name }}</a></small>
-            <small>Posted by <a href="{{ url_for('profile', username=post.author.username) }}"
-                    onclick="event.stopPropagation();">{{ post.author.username }}</a></small>
-            <div class="card-footer pl-0 pb-0">
-                <button class="btn btn-outline-secondary btn-sm" data-bs-toggle="collapse"
-                    data-bs-target="#post-content-{{ post.id }}" aria-expanded="false"
-                    aria-controls="post-content-{{ post.id }}" onclick="event.stopPropagation();">
-                    <i class="fas fa-up-right-and-down-left-from-center"></i>
-                </button>
-                {% if post.author == current_user %}
-                <a href="{{ url_for('edit_post', community_name=post.community.name, post_id=post.id) }}"
-                    class="btn btn-outline-secondary btn-sm"><i class="fas fa-pencil-alt"></i></a>
-                {% endif %}
-                <button class="btn btn-outline-secondary btn-sm"><i class="fas fa-bookmark"></i></button>
-            </div>
-            <div id="post-content-{{ post.id }}" class="collapse">
-                <hr>
-                {{ post.content }}
+            <div class="row">
+                <!-- Vote buttons column -->
+                <div class="col- d-flex flex-column align-items-center ml-2">
+                    <button class="btn btn-sm btn-outline-secondary vote-btn" data-vote="1" data-post-id="{{ post.id }}"
+                        onclick="event.stopPropagation(); vote(this);">
+                        <i class="fas fa-arrow-up"></i>
+                    </button>
+                    <span id="vote-score-{{ post.id }}" class="vote-score mx-2">{{ get_post_vote_total(post.id)
+                        }}</span>
+                    <button class="btn btn-sm btn-outline-secondary vote-btn" data-vote="-1"
+                        data-post-id="{{ post.id }}" onclick="event.stopPropagation(); vote(this);">
+                        <i class="fas fa-arrow-down"></i>
+                    </button>
+                </div>
+
+                <!-- Post data column -->
+                <div class="col-md-11">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h5 class="mb-1">{{ post.title }}</h5>
+                        <small>
+                            <span
+                                title="{% if post.date_edited %}Edited on {{ post.date_edited.strftime('%Y-%m-%d') }}{% endif %}">{{
+                                post.date_posted.strftime('%Y-%m-%d') }}{% if post.date_edited %}*{% endif %}</span>
+                        </small>
+                    </div>
+                    <small>c/<a href="{{ url_for('community', community_name=post.community.name) }}"
+                            onclick="event.stopPropagation();">{{ post.community.name }}</a></small>
+                    <small>Posted by <a href="{{ url_for('profile', username=post.author.username) }}"
+                            onclick="event.stopPropagation();">{{ post.author.username }}</a></small>
+                    <div class="card-footer pl-0 pb-0">
+                        <button class="btn btn-outline-secondary btn-sm" data-bs-toggle="collapse"
+                            data-bs-target="#post-content-{{ post.id }}" aria-expanded="false"
+                            aria-controls="post-content-{{ post.id }}" onclick="event.stopPropagation();">
+                            <i class="fas fa-up-right-and-down-left-from-center"></i>
+                        </button>
+                        {% if post.author == current_user %}
+                        <a href="{{ url_for('edit_post', community_name=post.community.name, post_id=post.id) }}"
+                            class="btn btn-outline-secondary btn-sm"><i class="fas fa-pencil-alt"></i></a>
+                        {% endif %}
+                        <button class="btn btn-outline-secondary btn-sm"><i class="fas fa-bookmark"></i></button>
+                    </div>
+                    <div id="post-content-{{ post.id }}" class="collapse">
+                        <hr>
+                        {{ post.content }}
+                    </div>
+                </div>
             </div>
         </div>
         <script>
@@ -40,11 +59,29 @@
                 window.location.href = "{{ url_for('post', community_name=post.community.name, post_id=post.id) }}";
             };
         </script>
+        <script>
+            function vote(button) {
+                var postId = button.getAttribute("data-post-id");
+                var vote = button.getAttribute("data-vote");
+                $.ajax({
+                    url: '/vote',
+                    data: JSON.stringify({ 'post_id': postId, 'value': vote }), // Corrected variable name
+                    type: 'POST',
+                    contentType: 'application/json',
+                    success: function (response) {
+                        $('#score-' + postId).html(response.new_score);
+                    },
+                    error: function (error) {
+                        console.log(error);
+                    }
+                });
+            }
+        </script>
+
         {% endfor %}
     </div>
 </div>
 {% endblock %}
-
 
 {% block sidebar_content %}
 <div class="card my-2">
