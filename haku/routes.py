@@ -135,14 +135,19 @@ def vote():
 
     print(post_id, value)
 
-    vote = Vote.query.filter_by(user_id=current_user.id, post_id=post_id).first()
+    # Check if the user has already voted
+    vote = Vote.query.filter_by(post_id=post_id, user_id=current_user.id).first()
     if vote:
-        if vote.value == value:
-            db.session.delete(vote)
+        # If the existing vote's value is the same as the new value, remove the vote
+        print(vote.value, value)
+        if vote.value == int(value):
+            vote.value = 0
         else:
+            # If the existing vote's value is different from the new value, update the vote
             vote.value = value
     else:
-        vote = Vote(value=value, user_id=current_user.id, post_id=post_id)
+        # If the user has not voted yet, add a new vote
+        vote = Vote(user_id=current_user.id, post_id=post_id, value=value)
         db.session.add(vote)
     
     try:
@@ -152,4 +157,4 @@ def vote():
         return jsonify({'message': 'You have already voted.'}), 400
 
     new_score = db.session.query(func.sum(Vote.value)).filter(Vote.post_id == post_id).scalar() or 0
-    return jsonify({'new_score': new_score}), 200
+    return jsonify({'new_score': new_score, 'value': value}), 200

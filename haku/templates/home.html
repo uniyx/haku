@@ -5,24 +5,24 @@
 <div class="container-fluid mt-2 pr-0">
     <div class="list-group">
         {% for post in posts %}
-        <div id="post-{{ post.id }}" class="list-group-item list-group-item-action" style="cursor: pointer;">
+        <div id="post-{{ post.id }}" class="list-group-item list-group-item-action pt-1 pb-1" style="cursor: pointer;">
             <div class="row">
                 <!-- Vote buttons column -->
                 <div class="col- d-flex flex-column align-items-center ml-2">
-                    <button class="btn btn-sm btn-outline-secondary vote-btn" data-vote="1" data-post-id="{{ post.id }}"
+                    <button class="btn btn-sm btn-outline-secondary border-0 vote-btn" data-vote="1" data-post-id="{{ post.id }}"
                         onclick="event.stopPropagation(); vote(this);">
                         <i class="fas fa-arrow-up"></i>
                     </button>
                     <span id="vote-score-{{ post.id }}" class="vote-score mx-2">{{ get_post_vote_total(post.id)
                         }}</span>
-                    <button class="btn btn-sm btn-outline-secondary vote-btn" data-vote="-1"
+                    <button class="btn btn-sm btn-outline-secondary border-0 vote-btn" data-vote="-1"
                         data-post-id="{{ post.id }}" onclick="event.stopPropagation(); vote(this);">
                         <i class="fas fa-arrow-down"></i>
                     </button>
                 </div>
 
                 <!-- Post data column -->
-                <div class="col-md-11">
+                <div class="col-md">
                     <div class="d-flex w-100 justify-content-between">
                         <h5 class="mb-1">{{ post.title }}</h5>
                         <small>
@@ -35,17 +35,17 @@
                             onclick="event.stopPropagation();">{{ post.community.name }}</a></small>
                     <small>Posted by <a href="{{ url_for('profile', username=post.author.username) }}"
                             onclick="event.stopPropagation();">{{ post.author.username }}</a></small>
-                    <div class="card-footer pl-0 pb-0">
-                        <button class="btn btn-outline-secondary btn-sm" data-bs-toggle="collapse"
+                    <div class="card-footer bg-white p-0">
+                        <button class="btn btn-outline-secondary border-0 btn-sm" data-bs-toggle="collapse"
                             data-bs-target="#post-content-{{ post.id }}" aria-expanded="false"
                             aria-controls="post-content-{{ post.id }}" onclick="event.stopPropagation();">
                             <i class="fas fa-up-right-and-down-left-from-center"></i>
                         </button>
                         {% if post.author == current_user %}
                         <a href="{{ url_for('edit_post', community_name=post.community.name, post_id=post.id) }}"
-                            class="btn btn-outline-secondary btn-sm"><i class="fas fa-pencil-alt"></i></a>
+                            class="btn btn-outline-secondary border-0 btn-sm"><i class="fas fa-pencil-alt"></i></a>
                         {% endif %}
-                        <button class="btn btn-outline-secondary btn-sm"><i class="fas fa-bookmark"></i></button>
+                        <button class="btn btn-outline-secondary border-0 btn-sm"><i class="fas fa-bookmark"></i></button>
                     </div>
                     <div id="post-content-{{ post.id }}" class="collapse">
                         <hr>
@@ -69,14 +69,17 @@
                     type: 'POST',
                     contentType: 'application/json',
                     success: function (response) {
-                        $('#score-' + postId).html(response.new_score);
+                        $('#vote-score-' + postId).html(response.new_score);
                     },
                     error: function (error) {
                         console.log(error);
                     }
                 });
+
+                button.disabled = false;
             }
         </script>
+
 
         {% endfor %}
     </div>
