@@ -14,8 +14,9 @@
                         data-vote="1" data-post-id="{{ post.id }}" onclick="event.stopPropagation(); vote(this);">
                         <i class="fas fa-arrow-up"></i>
                     </button>
-                    <span id="vote-score-{{ post.id }}" class="vote-score mx-2">{{ get_post_vote_total(post.id)
-                        }}</span>
+                    <span class="vote-score-wrapper">
+                        <span id="vote-score-{{ post.id }}" class="vote-score">{{ get_post_vote_total(post.id) }}</span>
+                    </span>
                     <button
                         class="btn btn-sm border-0 {{ 'btn-danger' if get_user_vote(post.id) == -1 else 'btn-outline-secondary' }} vote-btn vote-down"
                         data-vote="-1" data-post-id="{{ post.id }}" onclick="event.stopPropagation(); vote(this);">
