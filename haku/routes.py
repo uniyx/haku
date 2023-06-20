@@ -131,30 +131,42 @@ def utility_processor():
 def vote():
     data = request.get_json()
     post_id = data['post_id']
-    value = data['value']
+    new_value = data['value']
+    post = Post.query.get(post_id)
+    if not post:
+        return jsonify({'error': 'Post not found'}), 404
 
-    print(post_id, value)
-
-    # Check if the user has already voted
-    vote = Vote.query.filter_by(post_id=post_id, user_id=current_user.id).first()
+    # check if vote by this user already exists
+    vote = Vote.query.filter_by(user_id=current_user.id, post_id=post_id).first()
     if vote:
         # If the existing vote's value is the same as the new value, remove the vote
-        print(vote.value, value)
-        if vote.value == int(value):
+        print(vote.value, new_value)
+        if vote.value == int(new_value):
             vote.value = 0
+            user_vote = 0
         else:
-            # If the existing vote's value is different from the new value, update the vote
-            vote.value = value
+            # if existing vote is not same as new vote, update the vote
+            vote.value = new_value
+            user_vote = new_value
     else:
-        # If the user has not voted yet, add a new vote
-        vote = Vote(user_id=current_user.id, post_id=post_id, value=value)
+        # if no existing vote, create a new vote
+        vote = Vote(user_id=current_user.id, post_id=post_id, value=new_value)
         db.session.add(vote)
-    
-    try:
-        db.session.commit()
-    except IntegrityError:
-        db.session.rollback()
-        return jsonify({'message': 'You have already voted.'}), 400
+        user_vote = new_value
 
-    new_score = db.session.query(func.sum(Vote.value)).filter(Vote.post_id == post_id).scalar() or 0
-    return jsonify({'new_score': new_score, 'value': value}), 200
+    db.session.commit()
+
+    new_score = db.session.query(func.sum(Vote.value)).filter_by(post_id=post_id).scalar() or 0
+    return jsonify({'new_score': new_score, 'user_vote': user_vote}), 200
+
+
+@app.context_processor
+def utility_processor():
+    def get_user_vote(post_id):
+        vote = Vote.query.filter_by(post_id=post_id, user_id=current_user.id).first()
+        if vote:
+            return vote.value
+        else:
+            return 0  # User hasn't voted on the post
+    
+    return {'get_user_vote': get_user_vote}
