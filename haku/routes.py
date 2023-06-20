@@ -163,10 +163,10 @@ def vote():
 @app.context_processor
 def utility_processor():
     def get_user_vote(post_id):
-        vote = Vote.query.filter_by(post_id=post_id, user_id=current_user.id).first()
-        if vote:
-            return vote.value
+        if current_user.is_authenticated:
+            vote = Vote.query.filter_by(post_id=post_id, user_id=current_user.id).first()
+            return vote.value if vote else 0
         else:
-            return 0  # User hasn't voted on the post
-    
+            return None
+
     return {'get_user_vote': get_user_vote}
