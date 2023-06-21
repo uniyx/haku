@@ -6,7 +6,7 @@
                 <!-- Vote buttons column -->
                 <div class="col- d-flex flex-column align-items-center ml-2">
                     <button
-                        class="btn btn-sm border-0 {{ 'btn-primary' if get_user_vote(post.id) == 1 else 'btn-outline-secondary' }} vote-btn vote-up"
+                        class="btn btn-outline-primary btn-sm border-0 {{ 'text-primary' if get_user_vote(post.id) == 1 else 'text-secondary' }} vote-btn vote-up"
                         data-vote="1" data-post-id="{{ post.id }}" onclick="event.stopPropagation(); vote(this);">
                         <i class="fas fa-arrow-up"></i>
                     </button>
@@ -14,7 +14,7 @@
                         <span id="vote-score-{{ post.id }}" class="vote-score">{{ get_post_vote_total(post.id) }}</span>
                     </span>
                     <button
-                        class="btn btn-sm border-0 {{ 'btn-danger' if get_user_vote(post.id) == -1 else 'btn-outline-secondary' }} vote-btn vote-down"
+                        class="btn btn-outline-danger btn-sm border-0 {{ 'text-danger' if get_user_vote(post.id) == -1 else 'text-secondary' }} vote-btn vote-down"
                         data-vote="-1" data-post-id="{{ post.id }}" onclick="event.stopPropagation(); vote(this);">
                         <i class="fas fa-arrow-down"></i>
                     </button>
@@ -34,19 +34,22 @@
                             onclick="event.stopPropagation();">{{ post.community.name }}</a></small>
                     <small>Posted by <a href="{{ url_for('profile', username=post.author.username) }}"
                             onclick="event.stopPropagation();">{{ post.author.username }}</a></small>
+                    <!-- Post footer buttons -->
                     <div class="card-footer bg-white p-0">
-                        <button class="btn btn-outline-secondary border-0 btn-sm" data-bs-toggle="collapse"
-                            data-bs-target="#post-content-{{ post.id }}" aria-expanded="false"
-                            aria-controls="post-content-{{ post.id }}" onclick="event.stopPropagation();">
+                        <button id="expandBtn-{{ post.id }}" class="btn btn-outline-secondary border-0 btn-sm"
+                            data-bs-toggle="collapse" data-bs-target="#post-content-{{ post.id }}" aria-expanded="false"
+                            aria-controls="post-content-{{ post.id }}"
+                            onclick="event.stopPropagation(); toggleExpandIcon(this);">
                             <i class="fas fa-up-right-and-down-left-from-center fa-fw"></i>
                         </button>
+
                         {% if post.author == current_user %}
                         <a href="{{ url_for('edit_post', community_name=post.community.name, post_id=post.id) }}"
                             class="btn btn-outline-secondary border-0 btn-sm"><i
                                 class="fas fa-pencil-alt fa-fw"></i></a>
                         {% endif %}
                         <button
-                            class="btn btn-outline-secondary border-0 btn-sm save-btn {% if post in current_user.saved %}btn-success{% endif %}"
+                            class="btn btn-outline-secondary border-0 btn-sm save-btn {% if post in current_user.saved %}text-success{% endif %}"
                             data-post-id="{{ post.id }}" onclick="event.stopPropagation(); savePost(this);">
                             <i class="fas fa-bookmark fa-fw"></i>
                         </button>
@@ -68,15 +71,15 @@
                 var upvoteButton = document.querySelector(`[data-post-id="${postId}"][data-vote="1"]`);
                 var downvoteButton = document.querySelector(`[data-post-id="${postId}"][data-vote="-1"]`);
 
-                upvoteButton.classList.remove('btn-primary');
-                downvoteButton.classList.remove('btn-danger');
-                upvoteButton.classList.add('btn-outline-secondary');
-                downvoteButton.classList.add('btn-outline-secondary');
+                upvoteButton.classList.remove('text-primary');
+                downvoteButton.classList.remove('text-danger');
+                upvoteButton.classList.add('text-secondary');
+                downvoteButton.classList.add('text-secondary');
 
                 if (userVote == 1) {
-                    upvoteButton.classList.replace('btn-outline-secondary', 'btn-primary');
+                    upvoteButton.classList.replace('text-secondary', 'text-primary');
                 } else if (userVote == -1) {
-                    downvoteButton.classList.replace('btn-outline-secondary', 'btn-danger');
+                    downvoteButton.classList.replace('text-secondary', 'text-danger');
                 }
             }
 
@@ -101,6 +104,19 @@
                 button.disabled = false;
             }
 
+            function toggleExpandIcon(button) {
+                var icon = $(button).find('i');
+
+                if (icon.hasClass('fa-up-right-and-down-left-from-center')) {
+                    icon.removeClass('fa-up-right-and-down-left-from-center');
+                    icon.addClass('fa-down-left-and-up-right-to-center');
+                } else {
+                    icon.removeClass('fa-down-left-and-up-right-to-center');
+                    icon.addClass('fa-up-right-and-down-left-from-center');
+                }
+            }
+
+
             function savePost(button) {
                 var postId = button.getAttribute("data-post-id");
 
@@ -111,9 +127,9 @@
                     contentType: 'application/json',
                     success: function (response) {
                         if (response.saved) {
-                            $(button).removeClass('btn-outline-secondary').addClass('btn-success');
+                            $(button).removeClass('text-secondary').addClass('text-success');
                         } else {
-                            $(button).removeClass('btn-success').addClass('btn-outline-secondary');
+                            $(button).removeClass('text-success').addClass('text-secondary');
                         }
                     },
                     error: function (error) {

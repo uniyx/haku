@@ -11,18 +11,23 @@
 {% endblock %}
 
 {% block sidebar_content %}
-<div class="card mt-2">
-    <div class="card-body">
-        <h5 class="card-title">{{ user.username }}</h5>
-        <p class="card-text">
-            {{ user.karma }} karma
-        </p>
-        <p class="card-text">
-            Joined on {{ user.date_joined.strftime('%Y-%m-%d') }}
-        </p>
-        <p class="card-text">
-            {{ user.posts|length }} posts
-        </p>
+<div class="card mt-2 border-secondary">
+    <div class="card-header bg-secondary text-center text-white">
+        <h3 class="m-0">{{ user.username }}</h3>
     </div>
+    <ul class="list-group list-group-flush">
+        <li class="list-group-item">
+            <i class="fas fa-star fa-fw text-warning"></i> 
+            <strong>{{ user.karma }}</strong> Karma
+        </li>
+        <li class="list-group-item">
+            <i class="fas fa-calendar-alt fa-fw text-primary"></i> 
+            Joined on <strong>{{ user.date_joined.strftime('%Y-%m-%d') }}</strong>
+        </li>
+        <li class="list-group-item">
+            <i class="fas fa-pen-square fa-fw text-success"></i> 
+            <strong>{{ user.posts|length }}</strong> Posts
+        </li>
+    </ul>
 </div>
 {% endblock sidebar_content %}
