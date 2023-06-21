@@ -11,6 +11,9 @@
     <div class="card-body">
         <h5 class="card-title">{{ user.username }}</h5>
         <p class="card-text">
+            {{ user.karma }} karma
+        </p>
+        <p class="card-text">
             Joined on {{ user.date_joined.strftime('%Y-%m-%d') }}
         </p>
         <p class="card-text">

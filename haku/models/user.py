@@ -21,6 +21,7 @@ class User(UserMixin, db.Model):
     date_joined = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     posts = db.relationship('Post', backref='author', lazy=True)
     saved = db.relationship('Post', secondary=saved_posts, backref='saved_by')
+    karma = db.Column(db.Integer, default=0)
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)

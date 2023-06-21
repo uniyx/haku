@@ -131,7 +131,7 @@ def utility_processor():
 def vote():
     data = request.get_json()
     post_id = data['post_id']
-    new_value = data['value']
+    new_value = int(data['value'])
     post = Post.query.get(post_id)
     if not post:
         return jsonify({'error': 'Post not found'}), 404
@@ -140,25 +140,27 @@ def vote():
     vote = Vote.query.filter_by(user_id=current_user.id, post_id=post_id).first()
     if vote:
         # If the existing vote's value is the same as the new value, remove the vote
-        print(vote.value, new_value)
-        if vote.value == int(new_value):
+        if vote.value == new_value:
             vote.value = 0
             user_vote = 0
+            post.author.karma -= new_value  # Decrease author's karma by the vote value
         else:
             # if existing vote is not same as new vote, update the vote
+            post.author.karma -= vote.value  # First, remove the value of the old vote from the author's karma
             vote.value = new_value
             user_vote = new_value
+            post.author.karma += new_value  # Then, add the value of the new vote to the author's karma
     else:
         # if no existing vote, create a new vote
         vote = Vote(user_id=current_user.id, post_id=post_id, value=new_value)
         db.session.add(vote)
         user_vote = new_value
+        post.author.karma += new_value  # Increase author's karma by the vote value
 
     db.session.commit()
 
     new_score = db.session.query(func.sum(Vote.value)).filter_by(post_id=post_id).scalar() or 0
     return jsonify({'new_score': new_score, 'user_vote': user_vote}), 200
-
 
 @app.context_processor
 def utility_processor():
