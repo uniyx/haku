@@ -170,3 +170,26 @@ def utility_processor():
             return None
 
     return {'get_user_vote': get_user_vote}
+
+@app.route('/save_post', methods=['POST'])
+@login_required
+def save_post():
+    data = request.get_json()
+    post_id = data['post_id']
+    post = Post.query.get(post_id)
+    
+    if post in current_user.saved:
+        current_user.saved.remove(post)
+        saved = False
+    else:
+        current_user.saved.append(post)
+        saved = True
+
+    db.session.commit()
+    return jsonify({'saved': saved})
+
+@app.route('/saved')
+@login_required
+def saved():
+    posts = current_user.saved
+    return render_template('saved.html', posts=posts)

@@ -5,6 +5,12 @@ from haku import db
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 
+# association table
+saved_posts = db.Table('saved_posts',
+    db.Column('user_id', db.Integer, db.ForeignKey('users.id')),
+    db.Column('post_id', db.Integer, db.ForeignKey('posts.id'))
+)
+
 class User(UserMixin, db.Model):
     __tablename__ = 'users'
 
@@ -14,6 +20,7 @@ class User(UserMixin, db.Model):
     password_hash = db.Column(db.String(128))
     date_joined = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     posts = db.relationship('Post', backref='author', lazy=True)
+    saved = db.relationship('Post', secondary=saved_posts, backref='saved_by')
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)

@@ -34,8 +34,6 @@
                     </button>
                 </div>
 
-
-
                 <!-- Post data column -->
                 <div class="col-md">
                     <div class="d-flex w-100 justify-content-between">
@@ -54,14 +52,18 @@
                         <button class="btn btn-outline-secondary border-0 btn-sm" data-bs-toggle="collapse"
                             data-bs-target="#post-content-{{ post.id }}" aria-expanded="false"
                             aria-controls="post-content-{{ post.id }}" onclick="event.stopPropagation();">
-                            <i class="fas fa-up-right-and-down-left-from-center"></i>
+                            <i class="fas fa-up-right-and-down-left-from-center fa-fw"></i>
                         </button>
                         {% if post.author == current_user %}
                         <a href="{{ url_for('edit_post', community_name=post.community.name, post_id=post.id) }}"
-                            class="btn btn-outline-secondary border-0 btn-sm"><i class="fas fa-pencil-alt"></i></a>
+                            class="btn btn-outline-secondary border-0 btn-sm"><i
+                                class="fas fa-pencil-alt fa-fw"></i></a>
                         {% endif %}
-                        <button class="btn btn-outline-secondary border-0 btn-sm"><i
-                                class="fas fa-bookmark"></i></button>
+                        <button
+                            class="btn btn-outline-secondary border-0 btn-sm save-btn {% if post in current_user.saved %}btn-success{% endif %}"
+                            data-post-id="{{ post.id }}" onclick="event.stopPropagation(); savePost(this);">
+                            <i class="fas fa-bookmark fa-fw"></i>
+                        </button>
                     </div>
                     <div id="post-content-{{ post.id }}" class="collapse">
                         <hr>
@@ -113,6 +115,26 @@
                 button.disabled = false;
             }
 
+            function savePost(button) {
+                var postId = button.getAttribute("data-post-id");
+
+                $.ajax({
+                    url: '/save_post',
+                    data: JSON.stringify({ 'post_id': postId }),
+                    type: 'POST',
+                    contentType: 'application/json',
+                    success: function (response) {
+                        if (response.saved) {
+                            $(button).removeClass('btn-outline-secondary').addClass('btn-success');
+                        } else {
+                            $(button).removeClass('btn-success').addClass('btn-outline-secondary');
+                        }
+                    },
+                    error: function (error) {
+                        console.log(error);
+                    }
+                });
+            }
 
         </script>
         {% endfor %}
