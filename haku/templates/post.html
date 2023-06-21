@@ -1,6 +1,11 @@
 <!-- haku/templates/post.html -->
 
 {% extends "compact_layout.html" %}
+
+{% block title %}
+{{ post.title }} - /c/{{ community.name }}
+{% endblock %}
+
 {% block content %}
 <div class="container mt-2 pr-0">
     <div class="card">

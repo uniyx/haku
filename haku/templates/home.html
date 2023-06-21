@@ -3,6 +3,10 @@
 {% extends "layout.html" %}
 {%- from 'post_cards.html' import post_cards %}
 
+{% block title_suffix %}
+Home
+{% endblock %}
+
 {% block content %}
     {% include 'post_cards.html' %}
 {% endblock %}

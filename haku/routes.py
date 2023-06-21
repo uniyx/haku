@@ -73,7 +73,7 @@ def new_post():
         return redirect(url_for('home'))
     return render_template('submit.html', title='New Post', form=form, legend='New Post')
 
-@app.route("/user/<string:username>")
+@app.route("/u/<string:username>")
 @login_required
 def profile(username):
     user = User.query.filter_by(username=username).first_or_404()
