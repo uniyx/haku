@@ -16,7 +16,7 @@ from sqlalchemy import func
 def home():
     print(current_user)
     posts = Post.query.order_by(Post.date_posted.desc()).all()  # Query all posts in descending order by date
-    return render_template('home.html', posts=posts)
+    return render_template('home.html', posts=posts, compact=False)
 
 @app.route("/register", methods=['GET', 'POST'])
 def register():
@@ -28,7 +28,7 @@ def register():
         db.session.commit()
         flash('Your account has been created! You are now able to log in', 'success')
         return redirect(url_for('login'))
-    return render_template('register.html', title='Register', form=form)
+    return render_template('register.html', title='Register', form=form, compact=True)
 
 @app.route("/login", methods=['GET', 'POST'])
 def login():
@@ -44,13 +44,17 @@ def login():
             return redirect(next_page) if next_page else redirect(url_for('home'))
         else:
             flash('Login Unsuccessful. Please check email and password', 'danger')
-    return render_template('login.html', title='Login', form=form)
+    return render_template('login.html', title='Login', form=form, compact=True)
 
 @app.route("/logout")
 @login_required
 def logout():
     logout_user()
     return redirect(url_for('home'))
+
+@app.template_filter('nl2br')
+def nl2br_filter(s):
+    return s.replace('\n', '<br>')
 
 @app.route("/c/<community_name>/<int:post_id>")
 @login_required
@@ -59,7 +63,7 @@ def post(community_name, post_id):
     post = Post.query.get_or_404(post_id)
     if post.community_id != community.id:
         abort(404)
-    return render_template('post.html', title=post.title, post=post, community=community)
+    return render_template('post.html', title=post.title, post=post, community=community, compact=True)
 
 @app.route("/submit", methods=['GET', 'POST'])
 @login_required
@@ -71,7 +75,7 @@ def new_post():
         db.session.commit()
         flash('Your post has been created!', 'success')
         return redirect(url_for('home'))
-    return render_template('submit.html', title='New Post', form=form, legend='New Post')
+    return render_template('submit.html', title='New Post', form=form, legend='New Post', compact=True)
 
 @app.route("/u/<string:username>")
 @login_required
@@ -80,7 +84,7 @@ def profile(username):
     posts = Post.query.filter_by(author=user)\
         .order_by(Post.date_posted.desc())\
         .all()
-    return render_template('profile.html', posts=posts, user=user)
+    return render_template('profile.html', posts=posts, user=user, compact=True)
 
 @app.route("/create_community", methods=['GET', 'POST'])
 @login_required
@@ -194,4 +198,4 @@ def save_post():
 @login_required
 def saved():
     posts = current_user.saved
-    return render_template('saved.html', posts=posts)
+    return render_template('saved.html', posts=posts, compact=True)

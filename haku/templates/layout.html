@@ -13,6 +13,8 @@
   <!-- Font Awesome CSS -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
+  <link rel="icon"
+    href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐲</text></svg>">
   <title>{% block title %}Haku - {% endblock %}{% block title_suffix %} - Haku{% endblock %}</title>
 
 </head>
@@ -65,9 +67,9 @@
   {% endblock %}
 
   <!-- Content -->
-  <div class="container-fluid"> <!-- Change this to container-fluid for full-width layout -->
-    <div class="row">
-      <div class="col-lg-10 p-0"> <!-- Change column sizes to better fit content and sidebar -->
+  <div class="container-fluid">
+    <div class="row {% if compact %}justify-content-center{% endif %}">
+      <div class="col-lg-{{ '5 pr-0' if compact else '10 p-0' }}">
         <!-- Main content goes here -->
         {% block content %}
         {% endblock %}

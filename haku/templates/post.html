@@ -1,38 +1,88 @@
 <!-- haku/templates/post.html -->
 
-{% extends "compact_layout.html" %}
+{% extends "community.html" %}
 
 {% block title %}
 {{ post.title }} - /c/{{ community.name }}
 {% endblock %}
 
 {% block content %}
-<div class="container mt-2 pr-0">
-    <div class="card">
-        <div class="card-body">
-            <h2 class="card-title">{{ post.title }}</h2>
-            <h5 class="card-subtitle mb-2 text-muted">Posted by {{ post.author.username }} on {{ post.date_posted.strftime('%Y-%m-%d') }}</h5>
-            <p class="card-text">{{ post.content }}</p>
+<div id="post-{{ post.id }}" class="list-group-item list-group-item-action mt-2 pl-0"
+    data-url="{{ url_for('post', community_name=post.community.name, post_id=post.id) }}"
+    onclick="cardClick(event, this)">
+    <div class="row no-gutters">
+        <!-- Parent container for voting buttons and post data -->
+        <div class="d-flex w-100">
+            <!-- Vote buttons column -->
+            <div class="d-flex flex-column align-items-center px-3">
+                <button
+                    class="btn btn-outline-primary btn-sm border-0 {{ 'text-primary' if get_user_vote(post.id) == 1 else 'text-secondary' }} vote-btn vote-up"
+                    data-vote="1" data-post-id="{{ post.id }}" onclick="event.stopPropagation(); vote(this);">
+                    <i class="fas fa-arrow-up fa-lg"></i>
+                </button>
+                <span class="vote-score-wrapper">
+                    <span id="vote-score-{{ post.id }}" class="vote-score">{{ get_post_vote_total(post.id) }}</span>
+                </span>
+                <button
+                    class="btn btn-outline-danger btn-sm border-0 {{ 'text-danger' if get_user_vote(post.id) == -1 else 'text-secondary' }} vote-btn vote-down"
+                    data-vote="-1" data-post-id="{{ post.id }}" onclick="event.stopPropagation(); vote(this);">
+                    <i class="fas fa-arrow-down fa-lg"></i>
+                </button>
+            </div>
+
+            <!-- Post data column -->
+            <div class="col pl-0">
+                <div class="d-flex w-100 justify-content-between">
+                    <h2 class="mb-0">{{ post.title }}</h2>
+                </div>
+                <small>c/<a href="{{ url_for('community', community_name=post.community.name) }}"
+                        onclick="event.stopPropagation();">{{ post.community.name }}</a></small>
+                <small> • Posted by <a href="{{ url_for('profile', username=post.author.username) }}"
+                        onclick="event.stopPropagation();">{{ post.author.username }}</a></small>
+                <small class="text-muted">
+                    on <span
+                        title="{% if post.date_edited %}Edited on {{ post.date_edited.strftime('%Y-%m-%d') }}{% endif %}">{{
+                        post.date_posted.strftime('%Y-%m-%d') }}{% if post.date_edited %}*{% endif %}</span>
+                </small>
+                <!-- Post content -->
+                <div id="post-content-{{ post.id }}" class="mt-2 mb-2">{{ post.content|nl2br|safe }}</div>
+
+                <!-- Post footer buttons -->
+                <div class="card-footer bg-white p-0">
+                    {% if post.author == current_user %}
+                    <a href="{{ url_for('edit_post', community_name=post.community.name, post_id=post.id) }}"
+                        class="btn btn-outline-secondary border-0 btn-sm"><i class="fas fa-pencil-alt fa-fw"></i></a>
+                    {% endif %}
+                    <button
+                        class="btn btn-outline-secondary border-0 btn-sm save-btn {% if post in current_user.saved %}text-success{% endif %}"
+                        data-post-id="{{ post.id }}" onclick="event.stopPropagation(); savePost(this);">
+                        <i class="fas fa-bookmark fa-fw"></i>
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 </div>
+
+<script src="{{ url_for('static',filename='post.js') }}"></script>
 {% endblock %}
 
-{% block sidebar_content %}
+{% block sidebar_content2 %}
 <div class="card my-2">
-  <h5 class="card-header">Welcome to Haku!</h5> <!-- Added a welcome message -->
-  <div class="card-body">
-      Welcome to the front page of Haku! You can create a post, view other posts, and much more. Please enjoy your stay.
-      <hr/>
-      {% if current_page %}
-          <p>Current page: {{ current_page }}</p>
-      {% endif %}
-      {% if current_user.is_authenticated %}
-          <a href="{{ url_for('new_post') }}" class="btn btn-primary btn-block">Create Post</a>
-      {% else %}
-          <p>Please log in to create a post.</p>
-      {% endif %}
-      <!-- Other things to add later -->
-  </div>
+    <h5 class="card-header">Welcome to Haku!</h5> <!-- Added a welcome message -->
+    <div class="card-body">
+        Welcome to the front page of Haku! You can create a post, view other posts, and much more. Please enjoy your
+        stay.
+        <hr />
+        {% if current_page %}
+        <p>Current page: {{ current_page }}</p>
+        {% endif %}
+        {% if current_user.is_authenticated %}
+        <a href="{{ url_for('create_community') }}" class="btn btn-primary btn-block">Create Community</a>
+        {% else %}
+        <p>Please log in to create a commmunity.</p>
+        {% endif %}
+        <!-- Other things to add later -->
+    </div>
 </div>
-{% endblock sidebar_content %}
+{% endblock sidebar_content2 %}

@@ -1,6 +1,6 @@
 <!-- haku/templates/profile.html -->
 
-{% extends "compact_layout.html" %}
+{% extends "layout.html" %}
 
 {% block title %}
 /u/{{ user.username }}
@@ -11,8 +11,8 @@
 {% endblock %}
 
 {% block sidebar_content %}
-<div class="card mt-2 border-secondary">
-    <div class="card-header bg-secondary text-center text-white">
+<div class="card mt-2">
+    <div class="card-header text-center text-black">
         <h3 class="m-0">{{ user.username }}</h3>
     </div>
     <ul class="list-group list-group-flush">
