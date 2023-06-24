@@ -7,9 +7,8 @@
 {% endblock %}
 
 {% block content %}
-<div id="post-{{ post.id }}" class="list-group-item list-group-item-action mt-2 pl-0"
-    data-url="{{ url_for('post', community_name=post.community.name, post_id=post.id) }}"
-    onclick="cardClick(event, this)">
+<div id="post-{{ post.id }}" class="list-group-item list-group-item mt-2 pl-0"
+    data-url="{{ url_for('post', community_name=post.community.name, post_id=post.id) }}">
     <div class="row no-gutters">
         <!-- Parent container for voting buttons and post data -->
         <div class="d-flex w-100">

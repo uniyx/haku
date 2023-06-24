@@ -7,6 +7,11 @@
 {% endblock %}
 
 {% block content %}
+{% if not community.posts %}
+<li class="list-group-item mt-2">
+    No Posts Found
+</li>
+{% endif %}
     {% include 'post_cards.html' %}
 {% endblock %}
 

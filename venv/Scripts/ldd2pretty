@@ -1,0 +1,3 @@
+#!C:\Users\uni\Documents\haku\venv\Scripts\python.exe
+from ldapdomaindump import pretty
+pretty.main()

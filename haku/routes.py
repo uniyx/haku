@@ -4,13 +4,14 @@ from datetime import datetime
 from flask import abort, jsonify, render_template, url_for, flash, redirect, request
 from psycopg2 import IntegrityError
 from haku import app, db, bcrypt
-from haku.forms import RegistrationForm, LoginForm, PostForm, CommunityForm
+from haku.forms import RegistrationForm, LoginForm, PostForm, UpdateAccountForm, UpdatePasswordForm, CommunityForm
 from haku.models.user import User
 from haku.models.post import Post
 from haku.models.community import Community
 from haku.models.vote import Vote
 from flask_login import login_user, current_user, logout_user, login_required
 from sqlalchemy import func
+from werkzeug.security import generate_password_hash, check_password_hash
 
 @app.route("/")
 def home():
@@ -22,8 +23,8 @@ def home():
 def register():
     form = RegistrationForm()
     if form.validate_on_submit():
-        hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
-        user = User(username=form.username.data, email=form.email.data, password_hash=hashed_password)
+        user = User(username=form.username.data, email=form.email.data)
+        user.set_password(form.password.data)  # Use set_password method to hash the password
         db.session.add(user)
         db.session.commit()
         flash('Your account has been created! You are now able to log in', 'success')
@@ -33,17 +34,16 @@ def register():
 @app.route("/login", methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
-        print(current_user)
         return redirect(url_for('home'))
     form = LoginForm()
     if form.validate_on_submit():
         user = User.query.filter_by(username=form.username.data).first()
-        if user and bcrypt.check_password_hash(user.password_hash, form.password.data):
+        if user and user.check_password(form.password.data):
             login_user(user)
             next_page = request.args.get('next')
             return redirect(next_page) if next_page else redirect(url_for('home'))
         else:
-            flash('Login Unsuccessful. Please check email and password', 'danger')
+            flash('Login Unsuccessful. Please check username and password', 'danger')
     return render_template('login.html', title='Login', form=form, compact=True)
 
 @app.route("/logout")
@@ -52,6 +52,39 @@ def logout():
     logout_user()
     return redirect(url_for('home'))
 
+@app.route("/settings", methods=['GET', 'POST'])
+@login_required
+def settings():
+    account_form = UpdateAccountForm()
+    password_form = UpdatePasswordForm()
+
+    if account_form.validate_on_submit():
+        print("test 1")
+        current_user.email = account_form.email.data
+        current_user.bio = account_form.bio.data
+        db.session.commit()
+        flash('Your account has been updated!', 'success')
+        return redirect(url_for('settings'))
+
+    if password_form.validate_on_submit():
+        print("test 2")
+        print(password_form.current_password.data)
+        if current_user.check_password(password_form.current_password.data):
+            current_user.set_password(password_form.new_password.data)
+            db.session.commit()
+            flash('Your password has been updated!', 'success')
+            return redirect(url_for('settings'))
+        else:
+            flash('Current password is incorrect.', 'danger')
+
+    elif request.method == 'GET':
+        account_form.email.data = current_user.email
+        account_form.bio.data = current_user.bio
+
+    return render_template('settings.html', title='Settings', 
+                           user=current_user, account_form=account_form, password_form=password_form)
+
+    
 @app.template_filter('nl2br')
 def nl2br_filter(s):
     return s.replace('\n', '<br>')

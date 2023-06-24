@@ -30,6 +30,19 @@ class LoginForm(FlaskForm):
     remember = BooleanField('Remember Me')
     submit = SubmitField('Login')
 
+class UpdateAccountForm(FlaskForm):
+    email = StringField('Email',
+                        validators=[DataRequired(), Email()])
+    bio = TextAreaField('Bio',
+                        validators=[Length(max=500)])
+    submit = SubmitField('Update')
+
+class UpdatePasswordForm(FlaskForm):
+    current_password = PasswordField('Current Password', validators=[DataRequired()])
+    new_password = PasswordField('New Password', validators=[DataRequired(), Length(min=8)])
+    confirm_new_password = PasswordField('Confirm New Password', validators=[DataRequired(), EqualTo('new_password')])
+    submit = SubmitField('Update Password')
+
 def community_choices():
     return Community.query
 

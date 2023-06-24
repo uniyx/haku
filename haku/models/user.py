@@ -4,6 +4,7 @@ from datetime import datetime
 from haku import db
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
+from passlib.hash import pbkdf2_sha256
 
 # association table
 saved_posts = db.Table('saved_posts',
@@ -22,6 +23,7 @@ class User(UserMixin, db.Model):
     posts = db.relationship('Post', backref='author', lazy=True)
     saved = db.relationship('Post', secondary=saved_posts, backref='saved_by')
     karma = db.Column(db.Integer, default=0)
+    bio = db.Column(db.String(500))
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)

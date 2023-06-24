@@ -7,7 +7,7 @@
 {% endblock %}
 
 {% block header %}
-<div class="jumbotron jumbotron-fluid py-3 mb-2">
+<div class="jumbotron jumbotron-fluid py-3 mb-0">
     <div class="container">
       <h1 class="display-4 text-center">c/{{ community.name }}</h1>
       <p class="lead text-center">{{ community.name }}</p>
@@ -16,6 +16,11 @@
 {% endblock %}
 
 {% block content %}
+{% if not community.posts %}
+<li class="list-group-item mt-2">
+    No Posts Found
+</li>
+{% endif %}
     {% include 'post_cards.html' %}
 {% endblock %}
 
