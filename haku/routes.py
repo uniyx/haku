@@ -20,7 +20,7 @@ def home():
     return render_template('home.html', posts=posts, compact=False)
 
 @app.route("/<string:sort>")
-def homepage(sort="new"):
+def home_sort(sort="new"):
     if sort == "new":
         posts = Post.query.order_by(Post.date_posted.desc()).all()
     elif sort == "top":
@@ -100,7 +100,6 @@ def settings():
 
     return render_template('settings.html', title='Settings', 
                            user=current_user, account_form=account_form, password_form=password_form)
-
     
 @app.template_filter('nl2br')
 def nl2br_filter(s):
@@ -136,6 +135,23 @@ def profile(username):
         .all()
     return render_template('profile.html', posts=posts, user=user, compact=True)
 
+@app.route("/u/<string:username>/<string:sort>")
+def profile_sort(username, sort="new"):
+    user = User.query.filter_by(username=username).first_or_404()
+    if user is None:
+        posts = Post.query.filter_by(author=user).order_by(Post.date_posted.desc()).all()
+    if sort == "new":
+        posts = Post.query.filter_by(author=user).order_by(Post.date_posted.desc()).all()
+    elif sort == "top":
+        posts = Post.query.filter_by(author=user).order_by(Post.votes.desc()).all()
+    elif sort == "hot":
+        #Implement
+        #posts = hot_sort(Post.query.filter_by(author=user).all())
+        posts = Post.query.filter_by(author=user).order_by(Post.date_posted.desc()).all()
+    else:
+        abort(404)
+    return render_template("profile.html", posts=posts, user=user, compact=True)
+
 @app.route("/create_community", methods=['GET', 'POST'])
 @login_required
 def create_community():
@@ -153,6 +169,22 @@ def community(community_name):
     community = Community.query.filter_by(name=community_name).first_or_404()
     posts = Post.query.filter_by(community_id=community.id).order_by(Post.date_posted.desc()).all()
     return render_template('community.html', community=community, posts=posts)
+
+@app.route("/c/<string:community_name>/<string:sort>")
+def community_sort(community_name, sort="new"):
+    community = Community.query.filter_by(name=community_name).first_or_404()
+    posts = Post.query.filter_by(community_id=community.id)
+    if sort == "new":
+        posts = posts.order_by(Post.date_posted.desc()).all()
+    elif sort == "top":
+        posts = posts.order_by(Post.votes.desc()).all()
+    elif sort == "hot":
+        #Implement
+        #posts = hot_sort(community.posts.all())
+        posts = posts.order_by(Post.date_posted.desc()).all()
+    else:
+        abort(404)
+    return render_template("community.html", community=community, posts=posts)
 
 @app.route("/c/<string:community_name>/<int:post_id>/edit", methods=['GET', 'POST'])
 @login_required

@@ -34,7 +34,7 @@
                         <i class="fas fa-arrow-up fa-lg"></i>
                     </button>
                     <span class="vote-score-wrapper">
-                        <span id="vote-score-{{ post.id }}" class="vote-score">{{ get_post_vote_total(post.id) }}</span>
+                        <span id="vote-score-{{ post.id }}" class="vote-score">{{ post.votes }}</span>
                     </span>
                     <button
                         class="btn btn-outline-danger btn-sm border-0 {{ 'text-danger' if get_user_vote(post.id) == -1 else 'text-secondary' }} vote-btn vote-down"
