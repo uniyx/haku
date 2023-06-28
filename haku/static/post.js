@@ -75,3 +75,26 @@ function savePost(button) {
         }
     });
 }
+
+$(document).ready(function() {
+    $('.sort-button').click(function() {
+        var currentUrl = window.location.href;
+        var sortType = $(this).data('sort');
+        
+        console.log("Current URL: " + currentUrl);
+        console.log("Sort type: " + sortType);
+
+        if (currentUrl.endsWith('/')) {
+            currentUrl = currentUrl.slice(0, -1);
+        }
+        
+        // Check if URL already has a sort parameter and remove it
+        currentUrl = currentUrl.replace(/\/(new|top|hot)$/, '');
+        
+        // Append the new sort parameter
+        var newUrl = currentUrl + '/' + sortType;
+        console.log("New URL: " + newUrl);
+        
+        window.location.href = newUrl;
+    });
+});

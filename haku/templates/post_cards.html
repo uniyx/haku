@@ -1,4 +1,25 @@
+{% block javascript %}
+<script src="{{ url_for('static',filename='post.js') }}"></script>
+{% endblock %}
+
 <div class="container-fluid mt-2 pr-0">
+
+    <!-- Sort button toolbar in card -->
+    <div class="card mb-2">
+        <div class="card-body py-2 pl-1">
+            <div class="btn-toolbar justify-content-between" role="toolbar" aria-label="Toolbar with button groups">
+                <div class="btn-group" role="group" aria-label="Sort options">
+                    <button type="button" class="btn btn-outline-secondary border-0 sort-button" data-sort="hot"><i
+                            class="fas fa-fire fa-fw"></i> Hot</button>
+                    <button type="button" class="btn btn-outline-secondary border-0 sort-button" data-sort="top"><i
+                            class="fas fa-trophy fa-fw"></i> Top</button>
+                    <button type="button" class="btn btn-outline-secondary border-0 sort-button" data-sort="new"><i
+                            class="fas fa-rocket fa-fw"></i> New</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="list-group">
         {% for post in posts %}
         <div id="post-{{ post.id }}" class="list-group-item list-group-item-action pt-1 pb-1" style="cursor: pointer;"
@@ -26,7 +47,9 @@
                 <div class="col-md">
                     <div class="d-flex w-100 justify-content-between">
                         <h5 class="card-title mb-0">
-                            <a class="post-title-link text-reset" href="{{ url_for('post', community_name=post.community.name, post_id=post.id) }}">{{ post.title }}</a>
+                            <a class="post-title-link text-reset"
+                                href="{{ url_for('post', community_name=post.community.name, post_id=post.id) }}">{{
+                                post.title }}</a>
                         </h5>
                         <small>
                             <span
@@ -67,7 +90,3 @@
         {% endfor %}
     </div>
 </div>
-
-{% block javascript %}
-    <script src="{{ url_for('static',filename='post.js') }}"></script>
-{% endblock %}

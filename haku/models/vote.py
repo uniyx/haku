@@ -12,7 +12,7 @@ class Vote(db.Model):
 
     # Relationships
     user = db.relationship('User', backref=db.backref('votes', lazy=True))
-    post = db.relationship('Post', backref=db.backref('votes', lazy=True))
+    post = db.relationship('Post', backref=db.backref('vote_records', lazy=True))
 
     def __init__(self, user_id, post_id, value):
         self.user_id = user_id

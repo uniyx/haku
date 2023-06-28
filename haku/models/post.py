@@ -13,3 +13,4 @@ class Post(db.Model):
     date_edited = db.Column(db.DateTime)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     community_id = db.Column(db.Integer, db.ForeignKey('communities.id'), nullable=True)
+    votes = db.Column(db.Integer, default=0)

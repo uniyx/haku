@@ -19,6 +19,23 @@ def home():
     posts = Post.query.order_by(Post.date_posted.desc()).all()  # Query all posts in descending order by date
     return render_template('home.html', posts=posts, compact=False)
 
+@app.route("/<string:sort>")
+def homepage(sort="new"):
+    if sort == "new":
+        posts = Post.query.order_by(Post.date_posted.desc()).all()
+    elif sort == "top":
+        page = request.args.get('page', 1, type=int)
+        posts = Post.query.order_by(Post.votes.desc()).paginate(page=page, per_page=5)
+        return render_template('home.html', posts=posts)
+    elif sort == "hot":
+        # Implement!
+        # posts = hot_sort(Post.query.all())
+        posts = Post.query.order_by(Post.date_posted.desc()).all()
+    else:
+        # Invalid sort type
+        abort(404)
+    return render_template("home.html", posts=posts)
+
 @app.route("/register", methods=['GET', 'POST'])
 def register():
     form = RegistrationForm()
@@ -154,7 +171,7 @@ def edit_post(community_name, post_id):
     elif request.method == 'GET':
         form.title.data = post.title
         form.content.data = post.content
-    return render_template('submit.html', title='Update Post', form=form, legend='Update Post')
+    return render_template('submit.html', title='Update Post', form=form, legend='Update Post', compact=True)
 
 @app.context_processor
 def utility_processor():
@@ -180,23 +197,27 @@ def vote():
         if vote.value == new_value:
             vote.value = 0
             user_vote = 0
+            post.votes -= new_value  # Decrease post votes by the vote value
             post.author.karma -= new_value  # Decrease author's karma by the vote value
         else:
             # if existing vote is not same as new vote, update the vote
+            post.votes -= vote.value  # First, remove the value of the old vote from the post votes
             post.author.karma -= vote.value  # First, remove the value of the old vote from the author's karma
             vote.value = new_value
             user_vote = new_value
+            post.votes += new_value  # Then, add the value of the new vote to the post votes
             post.author.karma += new_value  # Then, add the value of the new vote to the author's karma
     else:
         # if no existing vote, create a new vote
         vote = Vote(user_id=current_user.id, post_id=post_id, value=new_value)
         db.session.add(vote)
         user_vote = new_value
+        post.votes += new_value  # Increase post votes by the vote value
         post.author.karma += new_value  # Increase author's karma by the vote value
 
     db.session.commit()
 
-    new_score = db.session.query(func.sum(Vote.value)).filter_by(post_id=post_id).scalar() or 0
+    new_score = post.votes
     return jsonify({'new_score': new_score, 'user_vote': user_vote}), 200
 
 @app.context_processor
