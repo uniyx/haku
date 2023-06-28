@@ -13,20 +13,14 @@ from flask_login import login_user, current_user, logout_user, login_required
 from sqlalchemy import func
 from werkzeug.security import generate_password_hash, check_password_hash
 
-@app.route("/")
-def home():
-    print(current_user)
-    posts = Post.query.order_by(Post.date_posted.desc()).all()  # Query all posts in descending order by date
-    return render_template('home.html', posts=posts, compact=False)
-
+@app.route("/", defaults={'sort': 'new'})
 @app.route("/<string:sort>")
-def home_sort(sort="new"):
+def home(sort):
     if sort == "new":
         posts = Post.query.order_by(Post.date_posted.desc()).all()
     elif sort == "top":
         page = request.args.get('page', 1, type=int)
         posts = Post.query.order_by(Post.votes.desc()).paginate(page=page, per_page=5)
-        return render_template('home.html', posts=posts)
     elif sort == "hot":
         # Implement!
         # posts = hot_sort(Post.query.all())
@@ -126,28 +120,19 @@ def new_post():
         return redirect(url_for('home'))
     return render_template('submit.html', title='New Post', form=form, legend='New Post', compact=True)
 
-@app.route("/u/<string:username>")
-@login_required
-def profile(username):
-    user = User.query.filter_by(username=username).first_or_404()
-    posts = Post.query.filter_by(author=user)\
-        .order_by(Post.date_posted.desc())\
-        .all()
-    return render_template('profile.html', posts=posts, user=user, compact=True)
-
+@app.route("/u/<string:username>/", defaults={'sort': 'new'})
 @app.route("/u/<string:username>/<string:sort>")
-def profile_sort(username, sort="new"):
+def profile(username, sort):
     user = User.query.filter_by(username=username).first_or_404()
-    if user is None:
-        posts = Post.query.filter_by(author=user).order_by(Post.date_posted.desc()).all()
+    posts_query = Post.query.filter_by(author=user)
     if sort == "new":
-        posts = Post.query.filter_by(author=user).order_by(Post.date_posted.desc()).all()
+        posts = posts_query.order_by(Post.date_posted.desc()).all()
     elif sort == "top":
-        posts = Post.query.filter_by(author=user).order_by(Post.votes.desc()).all()
+        posts = posts_query.order_by(Post.votes.desc()).all()
     elif sort == "hot":
         #Implement
-        #posts = hot_sort(Post.query.filter_by(author=user).all())
-        posts = Post.query.filter_by(author=user).order_by(Post.date_posted.desc()).all()
+        #posts = hot_sort(posts_query.all())
+        posts = posts_query.order_by(Post.date_posted.desc()).all()
     else:
         abort(404)
     return render_template("profile.html", posts=posts, user=user, compact=True)
@@ -164,14 +149,9 @@ def create_community():
         return redirect(url_for('community', community_name=community.name))
     return render_template('create_community.html', title='Create Community', form=form)
 
-@app.route("/c/<community_name>")
-def community(community_name):
-    community = Community.query.filter_by(name=community_name).first_or_404()
-    posts = Post.query.filter_by(community_id=community.id).order_by(Post.date_posted.desc()).all()
-    return render_template('community.html', community=community, posts=posts)
-
+@app.route("/c/<string:community_name>/", defaults={'sort': 'new'})
 @app.route("/c/<string:community_name>/<string:sort>")
-def community_sort(community_name, sort="new"):
+def community(community_name, sort):
     community = Community.query.filter_by(name=community_name).first_or_404()
     posts = Post.query.filter_by(community_id=community.id)
     if sort == "new":
@@ -179,8 +159,8 @@ def community_sort(community_name, sort="new"):
     elif sort == "top":
         posts = posts.order_by(Post.votes.desc()).all()
     elif sort == "hot":
-        #Implement
-        #posts = hot_sort(community.posts.all())
+        # Implement
+        # posts = hot_sort(community.posts.all())
         posts = posts.order_by(Post.date_posted.desc()).all()
     else:
         abort(404)
