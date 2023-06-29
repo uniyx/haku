@@ -126,15 +126,16 @@ def new_post():
 @app.route("/u/<string:username>/<string:sort>")
 def profile(username, sort):
     user = User.query.filter_by(username=username).first_or_404()
+    page = request.args.get('page', 1, type=int)
     posts_query = Post.query.filter_by(author=user)
     if sort == "new":
-        posts = posts_query.order_by(Post.date_posted.desc()).all()
+        posts = posts_query.order_by(Post.date_posted.desc()).paginate(page=page, per_page=10)
     elif sort == "top":
-        posts = posts_query.order_by(Post.votes.desc()).all()
+        posts = posts_query.order_by(Post.votes.desc()).paginate(page=page, per_page=10)
     elif sort == "hot":
         #Implement
         #posts = hot_sort(posts_query.all())
-        posts = posts_query.order_by(Post.date_posted.desc()).all()
+        posts = posts_query.order_by(Post.date_posted.desc()).paginate(page=page, per_page=10)
     else:
         abort(404)
     return render_template("profile.html", posts=posts, user=user, compact=True)

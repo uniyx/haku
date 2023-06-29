@@ -103,14 +103,12 @@
             <div class="btn-toolbar justify-content-between" role="toolbar" aria-label="Toolbar with button groups">
                 <div class="btn-group" role="group" aria-label="Pagination options">
                     {% if posts.has_prev %}
-                    <a class="btn btn-outline-secondary border-0 sort-button"
-                        href="{{ url_for('home', sort=sort, page=posts.prev_num) }}"><i
+                    <a id="prev-btn" class="btn btn-outline-secondary border-0 sort-button" href="#"><i
                             class="fas fa-arrow-left fa-fw"></i> Prev</a>
                     {% endif %}
                     <span class="btn btn-outline-dark border-0 disabled">{{ posts.page }}</span>
                     {% if posts.has_next %}
-                    <a class="btn btn-outline-secondary border-0 sort-button"
-                        href="{{ url_for('home', sort=sort, page=posts.next_num) }}"><i
+                    <a id="next-btn" class="btn btn-outline-secondary border-0 sort-button" href="#"><i
                             class="fas fa-arrow-right fa-fw"></i> Next</a>
                     {% endif %}
                 </div>

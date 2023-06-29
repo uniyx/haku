@@ -98,3 +98,20 @@ $(document).ready(function() {
         window.location.href = newUrl;
     });
 });
+
+$(document).ready(function() {
+    var url = new URL(window.location.href);
+    var page = url.searchParams.get('page') || 1;
+
+    $('#prev-btn').click(function() {
+        if (page > 1) {
+            url.searchParams.set('page', page - 1);
+            window.location.href = url.href;
+        }
+    });
+
+    $('#next-btn').click(function() {
+        url.searchParams.set('page', Number(page) + 1);
+        window.location.href = url.href;
+    });
+});
