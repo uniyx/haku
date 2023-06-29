@@ -9,6 +9,15 @@ Home
 
 {% block content %}
     {% include 'post_cards.html' %}
+    <div class="d-flex justify-content-center mt-2">
+        {% if posts.has_prev %}
+            <a class="btn btn-outline-info" href="{{ url_for('home', sort=sort, page=posts.prev_num) }}">Prev</a>
+        {% endif %}
+        <span class="btn btn-outline-dark disabled">{{ posts.page }}</span>
+        {% if posts.has_next %}
+            <a class="btn btn-outline-info" href="{{ url_for('home', sort=sort, page=posts.next_num) }}">Next</a>
+        {% endif %}
+    </div>
 {% endblock %}
 
 {% block sidebar_content %}

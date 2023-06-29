@@ -16,18 +16,20 @@ from werkzeug.security import generate_password_hash, check_password_hash
 @app.route("/", defaults={'sort': 'new'})
 @app.route("/<string:sort>")
 def home(sort):
+    page = request.args.get('page', 1, type=int)
+    
     if sort == "new":
-        posts = Post.query.order_by(Post.date_posted.desc()).all()
+        posts = Post.query.order_by(Post.date_posted.desc()).paginate(page=page, per_page=10)
     elif sort == "top":
-        page = request.args.get('page', 1, type=int)
-        posts = Post.query.order_by(Post.votes.desc()).paginate(page=page, per_page=5)
+        posts = Post.query.order_by(Post.votes.desc()).paginate(page=page, per_page=10)
     elif sort == "hot":
         # Implement!
         # posts = hot_sort(Post.query.all())
-        posts = Post.query.order_by(Post.date_posted.desc()).all()
+        posts = Post.query.order_by(Post.date_posted.desc()).paginate(page=page, per_page=10)
     else:
         # Invalid sort type
         abort(404)
+
     return render_template("home.html", posts=posts)
 
 @app.route("/register", methods=['GET', 'POST'])
