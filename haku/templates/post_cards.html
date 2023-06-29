@@ -20,13 +20,9 @@
         </div>
     </div>
 
+    {% if posts is defined and posts is not none %}
     <div class="list-group">
-        {% if not posts %}
-        <li class="list-group-item">
-            No Posts Found
-        </li>
-        {% endif %}
-
+        {% if posts.items %}
         {% for post in posts %}
         <div id="post-{{ post.id }}" class="list-group-item list-group-item-action pt-1 pb-1" style="cursor: pointer;"
             data-url="{{ url_for('post', community_name=post.community.name, post_id=post.id) }}"
@@ -94,5 +90,33 @@
             </div>
         </div>
         {% endfor %}
+        {% else %}
+        <li class="list-group-item">
+            No Posts Found
+        </li>
+        {% endif %}
     </div>
+
+    <!-- Pagination button toolbar in card -->
+    <div class="card mt-2">
+        <div class="card-body py-2 pl-1">
+            <div class="btn-toolbar justify-content-between" role="toolbar" aria-label="Toolbar with button groups">
+                <div class="btn-group" role="group" aria-label="Pagination options">
+                    {% if posts.has_prev %}
+                    <a class="btn btn-outline-secondary border-0 sort-button"
+                        href="{{ url_for('home', sort=sort, page=posts.prev_num) }}"><i
+                            class="fas fa-arrow-left fa-fw"></i> Prev</a>
+                    {% endif %}
+                    <span class="btn btn-outline-dark border-0 disabled">{{ posts.page }}</span>
+                    {% if posts.has_next %}
+                    <a class="btn btn-outline-secondary border-0 sort-button"
+                        href="{{ url_for('home', sort=sort, page=posts.next_num) }}"><i
+                            class="fas fa-arrow-right fa-fw"></i> Next</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% endif %}
 </div>
