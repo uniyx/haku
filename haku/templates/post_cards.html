@@ -21,6 +21,12 @@
     </div>
 
     <div class="list-group">
+        {% if not posts %}
+        <li class="list-group-item">
+            No Posts Found
+        </li>
+        {% endif %}
+
         {% for post in posts %}
         <div id="post-{{ post.id }}" class="list-group-item list-group-item-action pt-1 pb-1" style="cursor: pointer;"
             data-url="{{ url_for('post', community_name=post.community.name, post_id=post.id) }}"
