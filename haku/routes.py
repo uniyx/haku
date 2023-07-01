@@ -126,8 +126,9 @@ def new_post():
 @app.route("/u/<string:username>/<string:sort>")
 def profile(username, sort):
     user = User.query.filter_by(username=username).first_or_404()
-    page = request.args.get('page', 1, type=int)
     posts_query = Post.query.filter_by(author=user)
+    page = request.args.get('page', 1, type=int)
+
     if sort == "new":
         posts = posts_query.order_by(Post.date_posted.desc()).paginate(page=page, per_page=10)
     elif sort == "top":
@@ -157,14 +158,16 @@ def create_community():
 def community(community_name, sort):
     community = Community.query.filter_by(name=community_name).first_or_404()
     posts = Post.query.filter_by(community_id=community.id)
+    page = request.args.get('page', 1, type=int)
+
     if sort == "new":
-        posts = posts.order_by(Post.date_posted.desc()).all()
+        posts = posts.order_by(Post.date_posted.desc()).paginate(page=page, per_page=10)
     elif sort == "top":
-        posts = posts.order_by(Post.votes.desc()).all()
+        posts = posts.order_by(Post.votes.desc()).paginate(page=page, per_page=10)
     elif sort == "hot":
         # Implement
         # posts = hot_sort(community.posts.all())
-        posts = posts.order_by(Post.date_posted.desc()).all()
+        posts = posts.order_by(Post.date_posted.desc()).paginate(page=page, per_page=10)
     else:
         abort(404)
     return render_template("community.html", community=community, posts=posts)
