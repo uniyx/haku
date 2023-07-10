@@ -49,9 +49,14 @@
                 <div class="col-md">
                     <div class="d-flex w-100 justify-content-between">
                         <h5 class="card-title mb-0">
+                            {% if post.post_type == "link" %}
+                            <a class="post-title-link text-reset" href="{{ post.content }}" target="_blank">{{ post.title
+                                }}</a>
+                            {% else %}
                             <a class="post-title-link text-reset"
                                 href="{{ url_for('post', community_name=post.community.name, post_id=post.id) }}">{{
                                 post.title }}</a>
+                            {% endif %}
                         </h5>
                         <small>
                             <span
@@ -59,6 +64,7 @@
                                 post.date_posted.strftime('%Y-%m-%d') }}{% if post.date_edited %}*{% endif %}</span>
                         </small>
                     </div>
+
                     <small>c/<a href="{{ url_for('community', community_name=post.community.name) }}"
                             onclick="event.stopPropagation();">{{ post.community.name }}</a></small>
                     <small> • Posted by <a href="{{ url_for('profile', username=post.author.username) }}"
