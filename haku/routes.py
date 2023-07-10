@@ -4,7 +4,7 @@ from datetime import datetime
 from flask import abort, jsonify, render_template, url_for, flash, redirect, request
 from psycopg2 import IntegrityError
 from haku import app, db, bcrypt
-from haku.forms import RegistrationForm, LoginForm, PostForm, UpdateAccountForm, UpdatePasswordForm, CommunityForm
+from haku.forms import RegistrationForm, LoginForm, TextPostForm, LinkPostForm, ImagePostForm, UpdateAccountForm, UpdatePasswordForm, CommunityForm
 from haku.models.user import User
 from haku.models.post import Post
 from haku.models.community import Community
@@ -112,15 +112,30 @@ def post(community_name, post_id):
 
 @app.route("/submit", methods=['GET', 'POST'])
 @login_required
-def new_post():
-    form = PostForm()
-    if form.validate_on_submit():
-        post = Post(title=form.title.data, content=form.content.data, author=current_user, community=form.community.data)
+def submit():
+    text_form = TextPostForm(prefix='text')
+    link_form = LinkPostForm(prefix='link')
+    image_form = ImagePostForm(prefix='image')
+
+    if 'text-submit' in request.form and text_form.validate_on_submit():
+        post = Post(post_type='text', title=text_form.title.data, content=text_form.content.data, author=current_user, community=text_form.community.data)
         db.session.add(post)
         db.session.commit()
-        flash('Your post has been created!', 'success')
         return redirect(url_for('home'))
-    return render_template('submit.html', title='New Post', form=form, legend='New Post', compact=True)
+    elif 'link-submit' in request.form and link_form.validate_on_submit():
+        post = Post(post_type='link', title=link_form.title.data, content=link_form.link_url.data, author=current_user, community=link_form.community.data)
+        db.session.add(post)
+        db.session.commit()
+        return redirect(url_for('home'))
+    # elif 'image-submit' in request.form and image_form.validate_on_submit():
+    #     if image_form.image_file.data:
+    #         picture_file = save_picture(image_form.image_file.data)
+    #         post = Post(post_type='image', title=image_form.title.data, content=picture_file, author=current_user, community=image_form.community.data)
+    #         db.session.add(post)
+    #         db.session.commit()
+    #     return redirect(url_for('home'))
+
+    return render_template('submit.html', title='Submit Post', text_form=text_form, link_form=link_form, image_form=image_form, compact=True)
 
 @app.route("/u/<string:username>/", defaults={'sort': 'new'})
 @app.route("/u/<string:username>/<string:sort>")

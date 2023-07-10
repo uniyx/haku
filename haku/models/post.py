@@ -14,3 +14,4 @@ class Post(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     community_id = db.Column(db.Integer, db.ForeignKey('communities.id'), nullable=True)
     votes = db.Column(db.Integer, default=0)
+    post_type = db.Column(db.Text, nullable=False)
