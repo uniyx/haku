@@ -44,13 +44,24 @@
                         <i class="fas fa-arrow-down fa-lg"></i>
                     </button>
                 </div>
-
+                <!-- Thumbnail -->
+                <div class="col-auto mt-1">
+                    {% if post.thumbnail_url %}
+                    <img src="{{ post.thumbnail_url }}" alt="Post Thumbnail" style="width:100px;">
+                    <!-- adjust size as needed -->
+                    {% else %}
+                    <div class="d-flex align-items-center justify-content-center bg-light"
+                        style="width:96px; height:72px;">
+                        <i class="fas fa-file-alt fa-2x"></i> <!-- Font Awesome text icon -->
+                    </div>
+                    {% endif %}
+                </div>
                 <!-- Post data column -->
                 <div class="col-md">
                     <div class="d-flex w-100 justify-content-between">
                         <h5 class="card-title mb-0">
                             {% if post.post_type == "link" %}
-                            <a class="post-title-link text-reset" href="{{ post.content }}" target="_blank">{{
+                            <a class="post-title-link text-reset" href="{{ post.content }}" target="_blank" onclick="event.stopPropagation();">{{
                                 post.title
                                 }}</a>
                             {% else %}
