@@ -65,6 +65,11 @@ class ImagePostForm(FlaskForm):
     image_file = FileField('Upload Image/Video', validators=[FileAllowed(['jpg', 'png', 'jpeg', 'gif', 'mp4', 'mov', 'avi', 'mkv'])])
     submit = SubmitField('Post', id='image-submit')
 
+class EditPostForm(FlaskForm):
+    title = StringField('Title', validators=[DataRequired()])
+    content = TextAreaField('Content', validators=[DataRequired()])
+    submit = SubmitField('Update Post', id='edit-submit')
+
 class CommunityForm(FlaskForm):
     name = StringField('Name', validators=[DataRequired(), Length(max=100)])
     description = TextAreaField('Description', validators=[DataRequired()])

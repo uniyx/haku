@@ -15,3 +15,4 @@ class Post(db.Model):
     community_id = db.Column(db.Integer, db.ForeignKey('communities.id'), nullable=True)
     votes = db.Column(db.Integer, default=0)
     post_type = db.Column(db.Text, nullable=False)
+    is_deleted = db.Column(db.Boolean, nullable=True, default=False)

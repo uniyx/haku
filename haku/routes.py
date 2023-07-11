@@ -4,7 +4,7 @@ from datetime import datetime
 from flask import abort, jsonify, render_template, url_for, flash, redirect, request
 from psycopg2 import IntegrityError
 from haku import app, db, bcrypt
-from haku.forms import RegistrationForm, LoginForm, TextPostForm, LinkPostForm, ImagePostForm, UpdateAccountForm, UpdatePasswordForm, CommunityForm
+from haku.forms import RegistrationForm, LoginForm, TextPostForm, LinkPostForm, ImagePostForm, EditPostForm, UpdateAccountForm, UpdatePasswordForm, CommunityForm
 from haku.models.user import User
 from haku.models.post import Post
 from haku.models.community import Community
@@ -19,13 +19,13 @@ def home(sort):
     page = request.args.get('page', 1, type=int)
     
     if sort == "new":
-        posts = Post.query.order_by(Post.date_posted.desc()).paginate(page=page, per_page=10)
+        posts = Post.query.filter_by(is_deleted=False).order_by(Post.date_posted.desc()).paginate(page=page, per_page=10)
     elif sort == "top":
-        posts = Post.query.order_by(Post.votes.desc()).paginate(page=page, per_page=10)
+        posts = Post.query.filter_by(is_deleted=False).order_by(Post.votes.desc()).paginate(page=page, per_page=10)
     elif sort == "hot":
         # Implement!
         # posts = hot_sort(Post.query.all())
-        posts = Post.query.order_by(Post.date_posted.desc()).paginate(page=page, per_page=10)
+        posts = Post.query.filter_by(is_deleted=False).order_by(Post.date_posted.desc()).paginate(page=page, per_page=10)
     else:
         # Invalid sort type
         abort(404)
@@ -135,13 +135,24 @@ def submit():
     #         db.session.commit()
     #     return redirect(url_for('home'))
 
-    return render_template('submit.html', title='Submit Post', text_form=text_form, link_form=link_form, image_form=image_form, compact=True)
+    return render_template('submit.html', title='Submit Post', text_form=text_form, link_form=link_form, image_form=image_form, edit_mode=False, compact=True)
+
+@app.route("/post/<int:post_id>/delete", methods=['POST'])
+@login_required
+def delete_post(post_id):
+    post = Post.query.get_or_404(post_id)
+    if post.author != current_user:
+        abort(403)  # Forbidden access if the current user is not the author
+    post.is_deleted = True
+    db.session.commit()
+    flash('Your post has been deleted!', 'success')
+    return redirect(url_for('home'))
 
 @app.route("/u/<string:username>/", defaults={'sort': 'new'})
 @app.route("/u/<string:username>/<string:sort>")
 def profile(username, sort):
     user = User.query.filter_by(username=username).first_or_404()
-    posts_query = Post.query.filter_by(author=user)
+    posts_query = Post.query.filter_by(author=user, is_deleted=False)
     page = request.args.get('page', 1, type=int)
 
     if sort == "new":
@@ -172,7 +183,7 @@ def create_community():
 @app.route("/c/<string:community_name>/<string:sort>")
 def community(community_name, sort):
     community = Community.query.filter_by(name=community_name).first_or_404()
-    posts = Post.query.filter_by(community_id=community.id)
+    posts = Post.query.filter_by(community_id=community.id, is_deleted=False)
     page = request.args.get('page', 1, type=int)
 
     if sort == "new":
@@ -191,20 +202,20 @@ def community(community_name, sort):
 @login_required
 def edit_post(community_name, post_id):
     post = Post.query.get_or_404(post_id)
-    if post.author != current_user:
+    if post.author != current_user or post.post_type != 'text':
         abort(403)
-    form = PostForm()
-    if form.validate_on_submit():
-        post.title = form.title.data
-        post.content = form.content.data
+    text_form = EditPostForm()
+    if text_form.validate_on_submit():
+        post.title = text_form.title.data
+        post.content = text_form.content.data
         post.date_edited = datetime.utcnow()
         db.session.commit()
         flash('Your post has been updated!', 'success')
         return redirect(url_for('post', community_name=community_name, post_id=post.id))
     elif request.method == 'GET':
-        form.title.data = post.title
-        form.content.data = post.content
-    return render_template('submit.html', title='Update Post', form=form, legend='Update Post', compact=True)
+        text_form.title.data = post.title
+        text_form.content.data = post.content
+    return render_template('submit.html', title='Update Post', text_form=text_form, legend='Update Post', edit_mode=True, compact=True)
 
 @app.context_processor
 def utility_processor():
