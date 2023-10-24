@@ -1,6 +1,7 @@
 # haku/forms.py
 
 from flask_wtf import FlaskForm
+from flask_wtf.file import FileField, FileAllowed
 from wtforms import StringField, TextAreaField, PasswordField, BooleanField, SubmitField
 from wtforms.validators import DataRequired, Email, EqualTo, ValidationError, Length
 from wtforms_sqlalchemy.fields import QuerySelectField
@@ -46,11 +47,28 @@ class UpdatePasswordForm(FlaskForm):
 def community_choices():
     return Community.query
 
-class PostForm(FlaskForm):
+class TextPostForm(FlaskForm):
     community = QuerySelectField('Community', query_factory=community_choices, get_label='name', allow_blank=False, validators=[DataRequired()])
     title = StringField('Title', validators=[DataRequired()])
     content = TextAreaField('Content', validators=[DataRequired()])
-    submit = SubmitField('Post')
+    submit = SubmitField('Post', id='text-submit')
+
+class LinkPostForm(FlaskForm):
+    community = QuerySelectField('Community', query_factory=community_choices, get_label='name', allow_blank=False, validators=[DataRequired()])
+    title = StringField('Title', validators=[DataRequired()])
+    link_url = StringField('Link URL', validators=[DataRequired()])
+    submit = SubmitField('Post', id='link-submit')
+
+class ImagePostForm(FlaskForm):
+    community = QuerySelectField('Community', query_factory=community_choices, get_label='name', allow_blank=False, validators=[DataRequired()])
+    title = StringField('Title', validators=[DataRequired()])
+    image_file = FileField('Upload Image/Video', validators=[FileAllowed(['jpg', 'png', 'jpeg', 'gif', 'mp4', 'mov', 'avi', 'mkv'])])
+    submit = SubmitField('Post', id='image-submit')
+
+class EditPostForm(FlaskForm):
+    title = StringField('Title', validators=[DataRequired()])
+    content = TextAreaField('Content', validators=[DataRequired()])
+    submit = SubmitField('Update Post', id='edit-submit')
 
 class CommunityForm(FlaskForm):
     name = StringField('Name', validators=[DataRequired(), Length(max=100)])

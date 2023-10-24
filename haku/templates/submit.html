@@ -7,37 +7,73 @@ Submit Post
 {% endblock %}
 
 {% block content %}
-<div class="container-fluid mt-2 pr-0">
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header bg-primary text-white">
-                    <h3 class="card-title">New Post</h3>
-                </div>
-                <div class="card-body">
-                    <form method="POST">
-                        {{ form.hidden_tag() }}
-                        <div class="form-group">
-                            {{ form.community.label(class="form-control-label") }}
-                            {{ form.community(class="form-control") }}
-                        </div>
-                        <div class="form-group">
-                            {{ form.title.label(class="form-control-label") }}
-                            {{ form.title(class="form-control") }}
-                        </div>
-                        <div class="form-group">
-                            {{ form.content.label(class="form-control-label") }}
-                            {{ form.content(class="form-control") }}
-                        </div>
-                        <div class="form-group">
-                            {{ form.submit(class="btn btn-primary") }}
-                        </div>
-                    </form>
-                </div>
+    {% if not edit_mode %}
+    <h1 class="mb-3">Submit Post</h1>
+    {% endif %}
+    {% if edit_mode %}
+    <h1 class="mb-3">Edit Post</h1>
+    {% endif %}
+    <div class="card">
+        {% if not edit_mode %}
+        <div class="card-header">
+            <ul class="nav nav-pills card-header-pills" id="postType" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link active" id="text-tab" data-bs-toggle="tab" href="#text" role="tab" aria-controls="text" aria-selected="true">Text</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="link-tab" data-bs-toggle="tab" href="#link" role="tab" aria-controls="link" aria-selected="false">Link</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="image-tab" data-bs-toggle="tab" href="#image" role="tab" aria-controls="image" aria-selected="false">Image/Video</a>
+                </li>
+            </ul>
+        </div>        
+        {% endif %}
+        <div class="card-body">
+            <div class="tab-content" id="postTypeContent">
+                {% if not edit_mode %}
+                    <div class="tab-pane fade show active" id="text" role="tabpanel" aria-labelledby="text-tab">
+                        <form method="POST">
+                            {{ text_form.hidden_tag() }}
+                            {{ text_form.community.label(class="form-label") }} {{ text_form.community(class="form-control") }}
+                            {{ text_form.title.label(class="form-label") }} {{ text_form.title(class="form-control") }}
+                            {{ text_form.content.label(class="form-label") }} {{ text_form.content(class="form-control") }}
+                            {{ text_form.submit(class="btn btn-primary mt-2") }}
+                        </form>
+                    </div>
+                {% endif %}
+                {% if edit_mode %}
+                    <div class="tab-pane fade show active" id="text" role="tabpanel" aria-labelledby="text-tab">
+                        <form method="POST">
+                            {{ text_form.hidden_tag() }}
+                            {{ text_form.title.label(class="form-label") }} {{ text_form.title(class="form-control") }}
+                            {{ text_form.content.label(class="form-label") }} {{ text_form.content(class="form-control") }}
+                            {{ text_form.submit(class="btn btn-primary mt-2") }}
+                        </form>
+                    </div>
+                {% else %}
+                    <div class="tab-pane fade" id="link" role="tabpanel" aria-labelledby="link-tab">
+                        <form method="POST">
+                            {{ link_form.hidden_tag() }}
+                            {{ link_form.community.label(class="form-label") }} {{ link_form.community(class="form-control") }}
+                            {{ link_form.title.label(class="form-label") }} {{ link_form.title(class="form-control") }}
+                            {{ link_form.link_url.label(class="form-label") }} {{ link_form.link_url(class="form-control") }}
+                            {{ link_form.submit(class="btn btn-primary mt-2") }}
+                        </form>
+                    </div>
+                    <div class="tab-pane fade" id="image" role="tabpanel" aria-labelledby="image-tab">
+                        <form method="POST" enctype="multipart/form-data">
+                            {{ image_form.hidden_tag() }}
+                            {{ image_form.community.label(class="form-label") }} {{ image_form.community(class="form-control") }}
+                            {{ image_form.title.label(class="form-label") }} {{ image_form.title(class="form-control") }}
+                            {{ image_form.image_file.label(class="form-label") }} {{ image_form.image_file(class="form-control") }}
+                            {{ image_form.submit(class="btn btn-primary mt-2") }}
+                        </form>
+                    </div>
+                {% endif %}
             </div>
-        </div>
+        </div>        
     </div>
-</div>
 {% endblock content %}
 
 {% block sidebar_content %}
@@ -50,7 +86,7 @@ Submit Post
             <p>Current page: {{ current_page }}</p>
         {% endif %}
         {% if current_user.is_authenticated %}
-            <a href="{{ url_for('new_post') }}" class="btn btn-primary btn-block">Create Post</a>
+            <a href="{{ url_for('submit') }}" class="btn btn-primary btn-block">Create Post</a>
         {% else %}
             <p>Please log in to create a post.</p>
         {% endif %}

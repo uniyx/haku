@@ -44,14 +44,31 @@
                         <i class="fas fa-arrow-down fa-lg"></i>
                     </button>
                 </div>
-
+                <!-- Thumbnail -->
+                <div class="col-auto mt-1">
+                    {% if post.thumbnail_url %}
+                    <img src="{{ post.thumbnail_url }}" alt="Post Thumbnail" style="width:100px;">
+                    <!-- adjust size as needed -->
+                    {% else %}
+                    <div class="d-flex align-items-center justify-content-center bg-light"
+                        style="width:96px; height:72px;">
+                        <i class="fas fa-file-alt fa-2x"></i> <!-- Font Awesome text icon -->
+                    </div>
+                    {% endif %}
+                </div>
                 <!-- Post data column -->
                 <div class="col-md">
                     <div class="d-flex w-100 justify-content-between">
                         <h5 class="card-title mb-0">
+                            {% if post.post_type == "link" %}
+                            <a class="post-title-link text-reset" href="{{ post.content }}" target="_blank" onclick="event.stopPropagation();">{{
+                                post.title
+                                }}</a>
+                            {% else %}
                             <a class="post-title-link text-reset"
                                 href="{{ url_for('post', community_name=post.community.name, post_id=post.id) }}">{{
                                 post.title }}</a>
+                            {% endif %}
                         </h5>
                         <small>
                             <span
@@ -59,6 +76,7 @@
                                 post.date_posted.strftime('%Y-%m-%d') }}{% if post.date_edited %}*{% endif %}</span>
                         </small>
                     </div>
+
                     <small>c/<a href="{{ url_for('community', community_name=post.community.name) }}"
                             onclick="event.stopPropagation();">{{ post.community.name }}</a></small>
                     <small> • Posted by <a href="{{ url_for('profile', username=post.author.username) }}"
@@ -72,9 +90,17 @@
                             <i class="fas fa-up-right-and-down-left-from-center fa-fw"></i>
                         </button>
                         {% if post.author == current_user %}
+                        {% if post.post_type == 'text' %}
                         <a href="{{ url_for('edit_post', community_name=post.community.name, post_id=post.id) }}"
                             class="btn btn-outline-secondary border-0 btn-sm"><i
                                 class="fas fa-pencil-alt fa-fw"></i></a>
+                        {% endif %}
+                        <form action="{{ url_for('delete_post', post_id=post.id) }}" method="post"
+                            style="display:inline;">
+                            <button type="submit" class="btn btn-outline-secondary border-0 btn-sm"
+                                onclick="return confirm('Are you sure you want to delete this post?');"><i
+                                    class="fas fa-trash-alt fa-fw"></i></button>
+                        </form>
                         {% endif %}
                         <button
                             class="btn btn-outline-secondary border-0 btn-sm save-btn {% if post in current_user.saved %}text-success{% endif %}"
